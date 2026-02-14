@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bone: #DDDAD3;
+  --color-cedar: #13342D;
+  --color-moss: #5D6D59;
+  --color-walnut: #76574C;
+  --color-tobacco: #3F261F;
+  --color-onyx: #161910;
+
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: Helvetica, Arial, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-bone text-tobacco font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif text-onyx;
+  }
+}
