@@ -1,12 +1,18 @@
+export type PMSType = 'hostaway' | 'hospitable' | 'custom';
+
+export interface PMSColumnMapping {
+    checkin: string;
+    checkout: string;
+    bookingDate: string;
+    property: string;
+    channel: string;
+    revenue: string;
+    nights: string;
+    status?: string | null;
+}
+
 export interface RawReservation {
-    Guest: string;
-    Channel: string;
-    "Check-in date": string;
-    "Check-out date": string;
-    Listing: string;
-    "Reservation date": string;
-    rentalRevenue: number;
-    Nights: number;
+    [key: string]: string | number | undefined;
 }
 
 export interface Reservation {

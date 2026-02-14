@@ -5,7 +5,7 @@ import { PacingChart } from './PacingChart';
 import { LeadTimeHistogram } from './LeadTimeHistogram';
 import { MonthlyTable } from './MonthlyTable';
 import { ChannelMixChart } from './ChannelMixChart';
-import { Download, ChevronDown, RefreshCw, XCircle } from 'lucide-react';
+import { ChevronDown, RefreshCw, XCircle } from 'lucide-react';
 import { getYear } from 'date-fns';
 import { processData } from '../utils/dataProcessing';
 
@@ -13,10 +13,9 @@ interface DashboardProps {
     rawData: any[]; // The raw reservation data
     comparisonDate: Date;
     onBack: () => void;
-    onExport: () => void; // Passed from parent or implemented here
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ rawData, comparisonDate, onBack, onExport }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ rawData, comparisonDate, onBack }) => {
     const [selectedListing, setSelectedListing] = useState<string>("All Listings");
     const [data, setData] = useState<DashboardData | null>(null);
 
@@ -88,13 +87,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ rawData, comparisonDate, o
                             <p className="text-moss uppercase tracking-wider">Comparison Date</p>
                             <p className="font-bold text-onyx">{comparisonDate.toLocaleDateString()}</p>
                         </div>
-                        <button
-                            onClick={onExport}
-                            className="flex items-center gap-2 px-4 py-2 bg-cedar text-bone text-xs font-bold uppercase tracking-widest rounded hover:bg-onyx transition-colors"
-                        >
-                            <Download className="w-4 h-4" />
-                            <span className="hidden sm:inline">Export PDF</span>
-                        </button>
                         <button
                             onClick={onBack}
                             className="p-2 text-moss hover:text-cedar transition-colors"
