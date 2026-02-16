@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { DashboardData } from '../types';
 import { KPICard } from './KPICard';
 import { PacingChart } from './PacingChart';
 import { LeadTimeHistogram } from './LeadTimeHistogram';
 import { MonthlyTable } from './MonthlyTable';
 import { ChannelMixChart } from './ChannelMixChart';
+import { PacingSnapshotChart } from './PacingSnapshotChart';
+import { BookingCurveChart } from './BookingCurveChart';
 import { ChevronDown, RefreshCw, XCircle } from 'lucide-react';
 import { getYear } from 'date-fns';
 import { processData } from '../utils/dataProcessing';
@@ -24,6 +26,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ rawData, comparisonDate, o
         const processed = processData(rawData, comparisonDate, selectedListing);
         setData(processed);
     }, [rawData, comparisonDate, selectedListing]);
+
+    const filteredRawData = useMemo(() => {
+        if (selectedListing === "All Listings") return rawData;
+        return rawData.filter(r => r.listing === selectedListing);
+    }, [rawData, selectedListing]);
 
     if (!data) return <div className="flex h-screen items-center justify-center">Loading...</div>;
 
@@ -135,10 +142,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ rawData, comparisonDate, o
                     />
                 </div>
 
+                {/* New Advanced Metrics Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-bone">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-lg font-bold text-onyx font-serif">Pacing Snapshot ({currentYear} vs {prevYear})</h2>
+                        </div>
+                        <PacingSnapshotChart data={filteredRawData} referenceDate={comparisonDate} />
+                    </div>
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-bone">
+                        <h2 className="text-lg font-bold text-onyx mb-6 font-serif">Booking Curve Velocity</h2>
+                        <BookingCurveChart data={filteredRawData} />
+                    </div>
+                </div>
+
                 {/* Charts Row 1 */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-bone">
-                        <h2 className="text-lg font-bold text-onyx mb-6 font-serif">Revenue Pacing ({currentYear} vs {prevYear})</h2>
+                        <h2 className="text-lg font-bold text-onyx mb-6 font-serif">Revenue Cummulative Pacing ({currentYear} vs {prevYear})</h2>
                         <PacingChart data={data.pacing} currentYear={currentYear} prevYear={prevYear} />
                     </div>
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-bone">
