@@ -70,3 +70,13 @@ export interface DashboardData {
     channelMix: ChannelMix[];
     listings: string[]; // For filter
 }
+
+export interface RevenueEntry {
+    id: string;
+    propertyName: string;
+    month: number;
+    year: number;
+    totalRevenue: number;
+    occupiedNights: number;
+    availableNights: number;
+}
