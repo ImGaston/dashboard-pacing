@@ -7,7 +7,7 @@ import { AuthGuard } from '@/app/components/AuthGuard';
 import { Navbar } from '@/app/components/Navbar';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/app/components/ui/tabs';
 import { RevenueTracker } from '@/app/components/modules/RevenueTracker';
-import { ComingSoonAPI } from '@/app/components/modules/ComingSoonAPI';
+import { PMSConnector } from '@/app/components/modules/PMSConnector';
 import { MiniCourse } from '@/app/components/modules/MiniCourse';
 import type { Reservation } from '@/types';
 
@@ -36,7 +36,7 @@ export default function DashboardPage() {
                         <TabsList>
                             <TabsTrigger value="pacing">Pacing Tool</TabsTrigger>
                             <TabsTrigger value="revenue">Revenue Tracker</TabsTrigger>
-                            <TabsTrigger value="api">Coming Soon (API)</TabsTrigger>
+                            <TabsTrigger value="api">PMS Connector</TabsTrigger>
                             <TabsTrigger value="course">Mini Course</TabsTrigger>
                         </TabsList>
                     </div>
@@ -58,7 +58,7 @@ export default function DashboardPage() {
                     </TabsContent>
 
                     <TabsContent value="api">
-                        <ComingSoonAPI />
+                        <PMSConnector />
                     </TabsContent>
 
                     <TabsContent value="course">

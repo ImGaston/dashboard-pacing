@@ -80,3 +80,37 @@ export interface RevenueEntry {
     occupiedNights: number;
     availableNights: number;
 }
+
+// ── PMS Connector types ──
+
+export type PMSProvider = "hostaway" | "hospitable";
+
+export interface PMSCredentials {
+    provider: PMSProvider;
+    apiKey: string;
+    accountId?: string;       // Hostaway only
+    connectedAt: string;      // ISO date
+}
+
+export interface PMSListing {
+    id: string;
+    name: string;
+    type: string;
+    status: string;
+}
+
+export interface PMSReservation {
+    id: string;
+    guestName: string;
+    listingName: string;
+    checkIn: string;
+    checkOut: string;
+    revenue: number;
+    status: string;
+    channel: string;
+}
+
+export interface PMSFinancialMonth {
+    month: string;
+    revenue: number;
+}
