@@ -4,6 +4,11 @@ import { useState } from 'react';
 import { UploadScreen } from '@/app/components/UploadScreen';
 import { Dashboard } from '@/app/components/Dashboard';
 import { AuthGuard } from '@/app/components/AuthGuard';
+import { Navbar } from '@/app/components/Navbar';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/app/components/ui/tabs';
+import { RevenueTracker } from '@/app/components/modules/RevenueTracker';
+import { ComingSoonAPI } from '@/app/components/modules/ComingSoonAPI';
+import { MiniCourse } from '@/app/components/modules/MiniCourse';
 import type { Reservation } from '@/types';
 
 export default function DashboardPage() {
@@ -25,15 +30,41 @@ export default function DashboardPage() {
     return (
         <AuthGuard>
             <div className="min-h-screen bg-bone">
-                {view === 'upload' ? (
-                    <UploadScreen onDataReady={handleDataReady} />
-                ) : (
-                    <Dashboard
-                        rawData={rawData}
-                        comparisonDate={comparisonDate}
-                        onBack={handleBack}
-                    />
-                )}
+                <Navbar />
+                <Tabs defaultValue="pacing">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2">
+                        <TabsList>
+                            <TabsTrigger value="pacing">Pacing Tool</TabsTrigger>
+                            <TabsTrigger value="revenue">Revenue Tracker</TabsTrigger>
+                            <TabsTrigger value="api">Coming Soon (API)</TabsTrigger>
+                            <TabsTrigger value="course">Mini Course</TabsTrigger>
+                        </TabsList>
+                    </div>
+
+                    <TabsContent value="pacing">
+                        {view === 'upload' ? (
+                            <UploadScreen onDataReady={handleDataReady} />
+                        ) : (
+                            <Dashboard
+                                rawData={rawData}
+                                comparisonDate={comparisonDate}
+                                onBack={handleBack}
+                            />
+                        )}
+                    </TabsContent>
+
+                    <TabsContent value="revenue">
+                        <RevenueTracker />
+                    </TabsContent>
+
+                    <TabsContent value="api">
+                        <ComingSoonAPI />
+                    </TabsContent>
+
+                    <TabsContent value="course">
+                        <MiniCourse />
+                    </TabsContent>
+                </Tabs>
             </div>
         </AuthGuard>
     );
