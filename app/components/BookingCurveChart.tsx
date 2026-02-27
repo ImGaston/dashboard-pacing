@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
 import {
     LineChart,
@@ -11,7 +13,7 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import { getMonth, getYear, differenceInDays, startOfDay } from 'date-fns';
-import type { Reservation } from '../types';
+import type { Reservation } from '@/types';
 
 interface BookingCurveChartProps {
     data: Reservation[];
@@ -46,10 +48,9 @@ export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data }) =>
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
 
     const currentDaysOut = useMemo(() => {
-        // Assume "Current Year" is 2026 based on requirements
         const targetYear = 2026;
         const firstDayOfMonth = new Date(targetYear, selectedMonth, 1);
-        const today = new Date(); // Or passed reference date if needed, but user said "new Date() (Hoy)"
+        const today = new Date();
 
         return differenceInDays(firstDayOfMonth, today);
     }, [selectedMonth]);
@@ -58,8 +59,7 @@ export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data }) =>
         // 1. Filter data for the selected month
         const filteredData = data.filter(res => getMonth(res.checkInDate) === selectedMonth);
 
-        // 2. Pre-calculate lead times and revenues for performance
-        // We only care about 2025 and 2026
+        // 2. Pre-calculate lead times and revenues
         const reservations2025 = filteredData.filter(r => getYear(r.checkInDate) === 2025).map(r => ({
             revenue: r.revenue,
             leadTime: differenceInDays(startOfDay(r.checkInDate), startOfDay(r.reservationDate))
@@ -73,9 +73,6 @@ export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data }) =>
         // 3. Generate curve points from 365 down to 0
         const points = [];
         for (let daysOut = 365; daysOut >= 0; daysOut--) {
-            // Accumulate revenue where leadTime >= daysOut
-            // Optimization: could sort reservations by leadTime and iterate once, but simpler loop is fine for N < 10000
-
             const rev2025 = reservations2025.reduce((sum, r) => r.leadTime >= daysOut ? sum + r.revenue : sum, 0);
             const rev2026 = reservations2026.reduce((sum, r) => r.leadTime >= daysOut ? sum + r.revenue : sum, 0);
 

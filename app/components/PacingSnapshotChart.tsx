@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo } from 'react';
 import {
     ComposedChart,
@@ -11,7 +13,7 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import { getMonth, getYear, subYears, startOfDay, isBefore, isSameDay } from 'date-fns';
-import type { Reservation } from '../types';
+import type { Reservation } from '@/types';
 
 interface PacingSnapshotChartProps {
     data: Reservation[];
@@ -82,7 +84,7 @@ export const PacingSnapshotChart: React.FC<PacingSnapshotChartProps> = ({ data, 
         data.forEach(res => {
             const checkInYear = getYear(res.checkInDate);
             const monthIndex = getMonth(res.checkInDate);
-            const bookingDate = startOfDay(res.reservationDate); // Normalise to start of day for accurate comparison
+            const bookingDate = startOfDay(res.reservationDate);
             const revenue = res.revenue;
 
             // 2026 OTB: Checkin 2026 AND Booking <= Reference Date
@@ -147,7 +149,6 @@ export const PacingSnapshotChart: React.FC<PacingSnapshotChartProps> = ({ data, 
                         radius={[4, 4, 0, 0]}
                         barSize={20}
                     />
-                    {/* Render Line after Bars to be on top */}
                     <Line
                         type="monotone"
                         dataKey="revenue2025Final"

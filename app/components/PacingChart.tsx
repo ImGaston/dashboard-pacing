@@ -1,9 +1,10 @@
+"use client";
+
 import React from 'react';
-import type {
-    ChartOptions
-} from 'chart.js';
+import type { ChartOptions } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import type { PacingDataPoint } from '../types';
+import type { PacingDataPoint } from '@/types';
+import '@/utils/chartSetup';
 
 interface PacingChartProps {
     data: PacingDataPoint[];

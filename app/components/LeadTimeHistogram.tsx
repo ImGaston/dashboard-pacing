@@ -1,7 +1,10 @@
+"use client";
+
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import type { LeadTimeBucket } from '../types';
+import type { LeadTimeBucket } from '@/types';
 import type { ChartOptions } from 'chart.js';
+import '@/utils/chartSetup';
 
 interface LeadTimeHistogramProps {
     data: LeadTimeBucket[];

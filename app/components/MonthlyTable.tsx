@@ -1,7 +1,9 @@
+"use client";
+
 import React from 'react';
-import type { MonthlyMetric } from '../types';
+import type { MonthlyMetric } from '@/types';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface MonthlyTableProps {
     data: MonthlyMetric[];
@@ -25,7 +27,7 @@ export const MonthlyTable: React.FC<MonthlyTableProps> = ({ data, currentYear, p
                         <th className="px-4 py-3 text-right border-l border-moss/10">{currentYear} Booked</th>
                         <th className="px-4 py-3 text-right">{currentYear} Occ%</th>
                         <th className="px-4 py-3 text-right">{currentYear} ADR</th>
-                        <th className="px-4 py-3 text-right rounded-tr-lg">Δ Rev</th>
+                        <th className="px-4 py-3 text-right rounded-tr-lg">&Delta; Rev</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-moss/10">

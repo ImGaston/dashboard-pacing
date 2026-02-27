@@ -1,10 +1,12 @@
+"use client";
+
 import React, { useCallback, useState, useEffect } from 'react';
 import { Upload, FileCheck, X, FileSpreadsheet, AlertCircle, RefreshCw, ArrowRight } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import type { FileRejection } from 'react-dropzone';
-import { cn } from '../lib/utils';
-import { parseCSV, detectPMS } from '../utils/csvParser';
-import type { Reservation, PMSType, PMSColumnMapping } from '../types';
+import { cn } from '@/lib/utils';
+import { parseCSV, detectPMS } from '@/utils/csvParser';
+import type { Reservation, PMSType, PMSColumnMapping } from '@/types';
 
 interface UploadScreenProps {
     onDataReady: (data: Reservation[], date: Date) => void;
@@ -154,12 +156,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
             // Read headers for mapping
             const text = await file.text();
             const firstLine = text.split('\n')[0];
-            // Simple split for headers, real parsing is better but this is quick for UI
-            // Using a simple regex to handle quotes if possible or just split by comma
-            // Re-using the logic from parser would be ideal but it's async and internal
-            // Let's just read the file and use a simple split for now, or use the parser if we expose a header reader
-            // Actually, let's just use the parser's logic if we can, but we need to implement a 'getHeaders'
-            // For now, simple split
             const headers = firstLine.split(',').map(h => h.replace(/"/g, '').trim());
             setCustomHeaders(headers);
 
@@ -168,15 +164,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
             if (detected !== 'unknown' && detected !== 'custom') {
                 if (confirm(`This looks like a ${detected.toUpperCase()} file. Would you like to switch to automatic parsing?`)) {
                     setPms(detected);
-                    // The file is already set, logic needs a trigger to re-process if we switch
-                    // But since we just setPms, useEffect clears the file. 
-                    // UseEffect clears file, so user has to drop again? 
-                    // Let's keep the file if we switch? 
-                    // Complex state interaction. 
-                    // Let's just switch PMS and let user drop again for simplicity, 
-                    // or better, carry over the file.
-                    // To carry over, we need to disable the cleanup in useEffect for this specific transition.
-                    // For now, simpler to just let them drop again or not clear.
                 }
             }
         } else if (pms === 'hospitable') {
@@ -195,7 +182,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                 setValidationSummary({
                     count: reservations.length,
                     cancelled: cancelledCount,
-                    properties: properties.slice(0, 3), // Top 3
+                    properties: properties.slice(0, 3),
                     dateRange: `${minDate.toLocaleDateString()} - ${maxDate.toLocaleDateString()}`
                 });
             } catch (e) {
@@ -220,32 +207,13 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                 ]);
                 finalData = [...r1.reservations, ...r2.reservations];
             } else if (pms === 'hospitable') {
-                finalData = parsedData; // Already parsed
+                finalData = parsedData;
             } else if (pms === 'custom') {
                 if (!singleFile) return;
-                // Construct mapping
                 const finalMapping = { ...customMapping };
                 if (customStatusCol && customStatusCol !== 'None') {
                     finalMapping.status = customStatusCol;
                 }
-                // Inject custom status filter logic into parser? 
-                // We didn't add status filter value to customMapping interface (it's in config).
-                // But parseCSV takes customMapping as PMSColumnMapping.
-                // We need to pass the status filter value too?
-                // `parseCSV` uses `PMS_PARSERS[pmsType]?.statusFilter`. 
-                // For custom, `statusFilter` logic is missing in `parseCSV`.
-                // I need to update `parseCSV` to handle custom status filter?
-                // Wait, I can pass a modified config or just standard logic.
-                // Let's assume for now we just filter in `parseCSV` if status col is mapped.
-                // Actually `parseCSV` uses `PMS_PARSERS[pmsType].statusFilter`. 
-                // I should update `parseCSV` to accept custom status filter value.
-                // OR, just for this MVP, we assume 'accepted' or exact match?
-                // The requirements say: "Include only rows where status equals: [text input]"
-
-                // Hack: We can filter the results here after parsing if I cannot change parser easily.
-                // But `parseCSV` is doing the filtering.
-                // Better: Update `PMS_PARSERS`? No, constant.
-                // I will filter here since I receive `reservations` and `cancelledCount` isn't critical for Custom.
 
                 const statusFilter = (customStatusCol && customStatusCol !== 'None') ? customStatusFilter : undefined;
 
@@ -351,7 +319,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                             <h3 className="font-bold text-onyx text-sm uppercase">Map Columns</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 {Object.keys(customMapping).map((key) => {
-                                    if (key === 'status') return null; // Handle separately
+                                    if (key === 'status') return null;
                                     return (
                                         <div key={key} className="space-y-1">
                                             <label className="text-xs font-bold text-moss uppercase">{key}</label>
@@ -449,4 +417,3 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
         </div>
     );
 };
-

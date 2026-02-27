@@ -9,7 +9,7 @@
   --color-onyx: #161910;
 
   --font-serif: "Cormorant Garamond", serif;
-  --font-sans: Helvetica, Arial, sans-serif;
+  --font-sans: "Inter", Helvetica, Arial, sans-serif;
 }
 
 @layer base {

@@ -1,6 +1,9 @@
+"use client";
+
 import { Doughnut } from 'react-chartjs-2';
-import type { ChannelMix } from '../types';
+import type { ChannelMix } from '@/types';
 import type { ChartOptions } from 'chart.js';
+import '@/utils/chartSetup';
 
 interface ChannelMixChartProps {
     data: ChannelMix[];
