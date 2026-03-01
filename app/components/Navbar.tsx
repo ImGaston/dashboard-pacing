@@ -13,7 +13,7 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-white border-b border-moss/10">
+    <nav className="sticky top-0 z-50 bg-white border-b border-moss/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
         <h1 className="text-2xl font-serif text-onyx italic">revfactor</h1>
         <Button

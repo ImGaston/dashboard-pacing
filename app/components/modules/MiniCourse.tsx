@@ -86,7 +86,7 @@ export function MiniCourse() {
       </div>
 
       {/* Main layout: sidebar + content */}
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col md:flex-row gap-6 items-start">
         <LessonSidebar
           lessons={lessons}
           activeLessonId={activeLessonId}

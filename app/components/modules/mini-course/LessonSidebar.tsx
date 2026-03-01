@@ -92,7 +92,7 @@ export function LessonSidebar({
       </aside>
 
       {/* ── Mobile dropdown (visible below md) ── */}
-      <div className="md:hidden mb-4">
+      <div className="md:hidden w-full">
         <Select value={activeLessonId} onValueChange={onSelect}>
           <SelectTrigger>
             <SelectValue />
