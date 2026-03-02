@@ -1,3 +1,8 @@
+/**
+ * @deprecated — Legacy static lessons. Kept as fallback when Firestore is
+ * unavailable. New content should be managed via the admin panel at /admin/course
+ * and stored in Firestore.
+ */
 import React from "react";
 
 export interface Lesson {
@@ -12,7 +17,7 @@ export interface Lesson {
 function Takeaway({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-moss/10 border-l-4 border-moss p-4 rounded-r-lg my-6">
-      <p className="text-xs font-bold text-moss uppercase tracking-widest mb-1">
+      <p className="text-[9px] font-bold text-walnut uppercase tracking-[2px] mb-1">
         Key Takeaway
       </p>
       <p className="text-tobacco text-sm leading-relaxed">{children}</p>

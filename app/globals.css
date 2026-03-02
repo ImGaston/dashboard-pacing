@@ -1,20 +1,50 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bone: #DDDAD3;
+  /* Core palette */
+  --color-bone: #F6F5F3;
+  --color-bone-light: #FFFFFF;
+  --color-bone-muted: #E5E2DB;
+  --color-bone-dark: #CCC8BF;
   --color-cedar: #13342D;
+  --color-cedar-light: #1E4A40;
   --color-moss: #5D6D59;
+  --color-moss-light: #7A8B76;
   --color-walnut: #76574C;
+  --color-walnut-light: #8F6E62;
   --color-tobacco: #3F261F;
   --color-onyx: #161910;
 
-  --font-serif: "Cormorant Garamond", serif;
-  --font-sans: "Inter", Helvetica, Arial, sans-serif;
+  /* Semantic colors */
+  --color-success: #4A7C59;
+  --color-success-bg: #E2EDDF;
+  --color-warning: #9A7B4F;
+  --color-warning-bg: #F0E8D8;
+  --color-error: #8B3A3A;
+  --color-error-bg: #F0DADA;
+  --color-info: #5D6D59;
+  --color-info-bg: #E2E8E1;
+
+  /* Typography */
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: Helvetica, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 @layer base {
   body {
     @apply bg-bone text-tobacco font-sans;
+  }
+
+  /* SVG noise overlay for premium texture */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   h1,
@@ -24,5 +54,19 @@
   h5,
   h6 {
     @apply font-serif text-onyx;
+    letter-spacing: 0.5px;
+    text-transform: lowercase;
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

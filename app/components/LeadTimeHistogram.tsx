@@ -51,7 +51,7 @@ export const LeadTimeHistogram: React.FC<LeadTimeHistogramProps> = ({ data, curr
             tooltip: {
                 backgroundColor: '#161910',
                 titleFont: { family: 'Cormorant Garamond', size: 14 },
-                bodyFont: { family: 'Helvetica', size: 12 },
+                bodyFont: { family: '"JetBrains Mono", monospace', size: 12 },
                 padding: 10,
                 cornerRadius: 4,
             }
@@ -64,7 +64,7 @@ export const LeadTimeHistogram: React.FC<LeadTimeHistogramProps> = ({ data, curr
             y: {
                 grid: { color: '#e5e5e5' },
                 border: { display: false },
-                ticks: { color: '#5D6D59', font: { family: 'Helvetica' } }
+                ticks: { color: '#5D6D59', font: { family: '"JetBrains Mono", monospace' } }
             }
         }
     };

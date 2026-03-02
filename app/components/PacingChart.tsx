@@ -63,7 +63,7 @@ export const PacingChart: React.FC<PacingChartProps> = ({ data, currentYear, pre
             tooltip: {
                 backgroundColor: '#161910',
                 titleFont: { family: 'Cormorant Garamond', size: 14 },
-                bodyFont: { family: 'Helvetica', size: 12 },
+                bodyFont: { family: '"JetBrains Mono", monospace', size: 12 },
                 padding: 10,
                 cornerRadius: 4,
                 displayColors: true,
@@ -107,7 +107,7 @@ export const PacingChart: React.FC<PacingChartProps> = ({ data, currentYear, pre
                         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 }).format(value);
                     },
                     font: {
-                        family: 'Helvetica',
+                        family: '"JetBrains Mono", monospace',
                         size: 11
                     },
                     color: '#5D6D59',

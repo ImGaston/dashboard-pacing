@@ -21,11 +21,11 @@ function StatusBadge({ status }: { status: string }) {
   let color = "bg-moss/10 text-moss border-moss/20";
 
   if (normalized === "confirmed" || normalized === "accepted") {
-    color = "bg-green-50 text-green-700 border-green-200";
+    color = "bg-success-bg text-success border-success/30";
   } else if (normalized === "cancelled" || normalized === "canceled") {
-    color = "bg-red-50 text-red-700 border-red-200";
+    color = "bg-error-bg text-error border-error/30";
   } else if (normalized === "pending") {
-    color = "bg-amber-50 text-amber-700 border-amber-200";
+    color = "bg-warning-bg text-warning border-warning/30";
   }
 
   return (
@@ -44,7 +44,7 @@ export function ReservationsTable({ reservations, loading }: ReservationsTablePr
         <CardContent className="py-12">
           <div className="animate-pulse space-y-3">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-10 bg-bone rounded" />
+              <div key={i} className="h-10 bg-bone-muted rounded" />
             ))}
           </div>
         </CardContent>

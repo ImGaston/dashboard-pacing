@@ -47,7 +47,7 @@ export const ChannelMixChart: React.FC<ChannelMixChartProps> = ({ data }) => {
             tooltip: {
                 backgroundColor: '#161910',
                 titleFont: { family: 'Cormorant Garamond', size: 14 },
-                bodyFont: { family: 'Helvetica', size: 12 },
+                bodyFont: { family: '"JetBrains Mono", monospace', size: 12 },
                 callbacks: {
                     label: (context: any) => {
                         const val = context.parsed;

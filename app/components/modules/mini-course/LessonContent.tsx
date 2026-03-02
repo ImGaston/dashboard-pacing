@@ -1,12 +1,14 @@
 "use client";
 
+import React from "react";
 import { Lock, CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
-import type { Lesson } from "./lessons";
+import { MarkdownPreview } from "@/app/components/admin/MarkdownPreview";
+import type { UnifiedLesson } from "../MiniCourse";
 
 interface LessonContentProps {
-  lesson: Lesson;
+  lesson: UnifiedLesson;
   isCompleted: boolean;
   onMarkComplete: () => void;
 }
@@ -33,6 +35,15 @@ export function LessonContent({
     );
   }
 
+  /* ── Render content: markdown string or legacy React node ── */
+  const renderBody = () => {
+    if (typeof lesson.content === "string") {
+      return <MarkdownPreview content={lesson.content} />;
+    }
+    // Legacy JSX from static lessons.tsx
+    return lesson.content;
+  };
+
   /* ── Available lesson ── */
   return (
     <Card className="flex-1">
@@ -44,19 +55,21 @@ export function LessonContent({
           </h2>
           <div className="flex items-center gap-2 mt-3">
             <Clock className="h-3.5 w-3.5 text-moss" />
-            <span className="text-xs font-medium text-moss">{lesson.duration}</span>
+            <span className="text-xs font-medium text-moss">
+              {lesson.duration}
+            </span>
           </div>
         </div>
 
         {/* Lesson body */}
-        {lesson.content}
+        {renderBody()}
 
         {/* Footer: Mark as Complete */}
         <div className="mt-10 pt-6 border-t border-bone">
           {isCompleted ? (
             <Button variant="ghost" disabled className="gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <span className="text-green-700">Completed</span>
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              <span className="text-success">Completed</span>
             </Button>
           ) : (
             <Button onClick={onMarkComplete} className="gap-2">

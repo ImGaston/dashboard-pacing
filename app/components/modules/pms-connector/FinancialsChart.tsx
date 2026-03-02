@@ -20,11 +20,11 @@ interface FinancialsChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-lg text-xs">
-        <p className="font-bold text-gray-800 mb-1">{label}</p>
+      <div className="bg-bone-light p-3 border border-bone-dark shadow-[0_1px_3px_rgba(22,25,16,0.06)] rounded-[12px] text-xs">
+        <p className="font-bold text-onyx mb-1">{label}</p>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-cedar" />
-          <span className="text-gray-600">Revenue:</span>
+          <span className="text-moss">Revenue:</span>
           <span className="font-mono font-medium">
             ${Number(payload[0].value).toLocaleString()}
           </span>
@@ -41,7 +41,7 @@ export function FinancialsChart({ financials, loading }: FinancialsChartProps) {
       <Card>
         <CardContent className="py-12">
           <div className="animate-pulse">
-            <div className="h-[350px] bg-bone rounded" />
+            <div className="h-[350px] bg-bone-muted rounded" />
           </div>
         </CardContent>
       </Card>
@@ -76,13 +76,13 @@ export function FinancialsChart({ financials, loading }: FinancialsChartProps) {
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                  tick={{ fill: "#5D6D59", fontSize: 12 }}
                   dy={10}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                  tick={{ fill: "#5D6D59", fontSize: 12, fontFamily: '"JetBrains Mono", monospace' }}
                   tickFormatter={(value) =>
                     value >= 1000
                       ? `$${(value / 1000).toFixed(0)}k`

@@ -74,9 +74,9 @@ export function RevenueTable({ entries, onDelete }: RevenueTableProps) {
                     <TableCell className="text-right font-mono">
                       ${entry.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </TableCell>
-                    <TableCell className="text-right">{entry.occupiedNights}</TableCell>
-                    <TableCell className="text-right">{entry.availableNights}</TableCell>
-                    <TableCell className="text-right">{occ.toFixed(1)}%</TableCell>
+                    <TableCell className="text-right font-mono">{entry.occupiedNights}</TableCell>
+                    <TableCell className="text-right font-mono">{entry.availableNights}</TableCell>
+                    <TableCell className="text-right font-mono">{occ.toFixed(1)}%</TableCell>
                     <TableCell className="text-right font-mono">${adr.toFixed(0)}</TableCell>
                     <TableCell className="text-right font-mono">${revpan.toFixed(0)}</TableCell>
                     <TableCell>
@@ -84,7 +84,7 @@ export function RevenueTable({ entries, onDelete }: RevenueTableProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => onDelete(entry.id)}
-                        className="h-8 w-8 p-0 text-moss hover:text-red-600"
+                        className="h-8 w-8 p-0 text-moss hover:text-error"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

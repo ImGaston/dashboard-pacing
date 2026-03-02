@@ -73,8 +73,8 @@ export function RevenueTracker() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-pulse space-y-6">
-          <div className="h-64 bg-bone rounded-xl" />
-          <div className="h-48 bg-bone rounded-xl" />
+          <div className="h-64 bg-bone-muted rounded-[12px]" />
+          <div className="h-48 bg-bone-muted rounded-[12px]" />
         </div>
       </div>
     );

@@ -24,8 +24,8 @@ function StatusBadge({ status }: { status: string }) {
     <span
       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
         isActive
-          ? "bg-green-50 text-green-700 border border-green-200"
-          : "bg-moss/10 text-moss border border-moss/20"
+          ? "bg-success-bg text-success border border-success/30"
+          : "bg-moss/10 text-moss border border-bone-dark"
       }`}
     >
       {status}
@@ -40,7 +40,7 @@ export function ListingsTable({ listings, loading }: ListingsTableProps) {
         <CardContent className="py-12">
           <div className="animate-pulse space-y-3">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-10 bg-bone rounded" />
+              <div key={i} className="h-10 bg-bone-muted rounded" />
             ))}
           </div>
         </CardContent>

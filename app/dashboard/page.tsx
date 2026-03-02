@@ -30,16 +30,15 @@ export default function DashboardPage() {
     return (
         <AuthGuard>
             <div className="min-h-screen bg-bone">
-                <Navbar />
                 <Tabs defaultValue="pacing">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2">
+                    <Navbar>
                         <TabsList>
                             <TabsTrigger value="pacing">Pacing Tool</TabsTrigger>
                             <TabsTrigger value="revenue">Revenue Tracker</TabsTrigger>
                             <TabsTrigger value="api">PMS Connector</TabsTrigger>
                             <TabsTrigger value="course">Mini Course</TabsTrigger>
                         </TabsList>
-                    </div>
+                    </Navbar>
 
                     <TabsContent value="pacing">
                         {view === 'upload' ? (

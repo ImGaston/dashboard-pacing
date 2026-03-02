@@ -190,17 +190,17 @@ export function RevenueEntryForm({ onSave, existingProperties }: RevenueEntryFor
 
         {/* Row 3: Live calculated outputs */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-bone/50 rounded-lg p-4 text-center">
-            <p className="text-xs font-bold text-moss uppercase tracking-widest mb-1">Occupancy</p>
-            <p className="text-2xl font-serif text-onyx">{occupancyRate.toFixed(1)}%</p>
+          <div className="bg-bone-muted/50 rounded-[12px] p-4 text-center">
+            <p className="text-[9px] font-bold text-walnut uppercase tracking-[2px] mb-1">Occupancy</p>
+            <p className="text-2xl font-mono text-onyx">{occupancyRate.toFixed(1)}%</p>
           </div>
-          <div className="bg-bone/50 rounded-lg p-4 text-center">
-            <p className="text-xs font-bold text-moss uppercase tracking-widest mb-1">ADR</p>
-            <p className="text-2xl font-serif text-onyx">${adr.toFixed(2)}</p>
+          <div className="bg-bone-muted/50 rounded-[12px] p-4 text-center">
+            <p className="text-[9px] font-bold text-walnut uppercase tracking-[2px] mb-1">ADR</p>
+            <p className="text-2xl font-mono text-onyx">${adr.toFixed(2)}</p>
           </div>
-          <div className="bg-bone/50 rounded-lg p-4 text-center">
-            <p className="text-xs font-bold text-moss uppercase tracking-widest mb-1">RevPAN</p>
-            <p className="text-2xl font-serif text-onyx">${revpan.toFixed(2)}</p>
+          <div className="bg-bone-muted/50 rounded-[12px] p-4 text-center">
+            <p className="text-[9px] font-bold text-walnut uppercase tracking-[2px] mb-1">RevPAN</p>
+            <p className="text-2xl font-mono text-onyx">${revpan.toFixed(2)}</p>
           </div>
         </div>
       </CardContent>

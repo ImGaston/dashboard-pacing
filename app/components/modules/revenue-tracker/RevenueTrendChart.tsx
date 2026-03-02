@@ -29,15 +29,15 @@ interface RevenueTrendChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-lg text-xs">
-        <p className="font-bold text-gray-800 mb-2">{label}</p>
+      <div className="bg-bone-light p-3 border border-bone-dark shadow-[0_1px_3px_rgba(22,25,16,0.06)] rounded-[12px] text-xs">
+        <p className="font-bold text-onyx mb-2">{label}</p>
         {payload.map((p: any, i: number) => (
           <div key={i} className="flex items-center gap-2 mb-1">
             <span
               className="w-2 h-2 rounded-full"
               style={{ backgroundColor: p.color }}
             />
-            <span className="text-gray-600">{p.name}:</span>
+            <span className="text-moss">{p.name}:</span>
             <span className="font-mono font-medium">
               ${Number(p.value).toLocaleString()}
             </span>
@@ -114,13 +114,13 @@ export function RevenueTrendChart({ entries, selectedProperty }: RevenueTrendCha
                   dataKey="label"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                  tick={{ fill: "#5D6D59", fontSize: 12 }}
                   dy={10}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                  tick={{ fill: "#5D6D59", fontSize: 12, fontFamily: '"JetBrains Mono", monospace' }}
                   tickFormatter={(value) =>
                     value >= 1000 ? `$${(value / 1000).toFixed(0)}k` : `$${value}`
                   }
@@ -132,7 +132,7 @@ export function RevenueTrendChart({ entries, selectedProperty }: RevenueTrendCha
                     height={36}
                     iconType="circle"
                     formatter={(value) => (
-                      <span className="text-gray-600 text-sm font-medium ml-1">{value}</span>
+                      <span className="text-moss text-sm font-medium ml-1">{value}</span>
                     )}
                   />
                 )}

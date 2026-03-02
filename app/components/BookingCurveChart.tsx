@@ -24,14 +24,14 @@ const MONTHS = [
     "July", "August", "September", "October", "November", "December"
 ];
 
-const COLOR_2026 = "#10b981"; // Emerald-500
-const COLOR_2025 = "#6366f1"; // Indigo-500
+const COLOR_2026 = "#13342D"; // Cedar
+const COLOR_2025 = "#76574C"; // Walnut
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-lg text-xs">
-                <p className="font-bold text-gray-800 mb-2">{label} Days Out</p>
+            <div className="bg-bone-light p-3 border border-bone-dark shadow-[0_4px_12px_rgba(22,25,16,0.08)] rounded-lg text-xs">
+                <p className="font-bold text-onyx mb-2">{label} Days Out</p>
                 {payload.map((entry: any, index: number) => (
                     <div key={index} className="flex items-center gap-2 mb-1" style={{ color: entry.color }}>
                         <span className="font-medium">{entry.name}:</span>
@@ -92,7 +92,7 @@ export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data }) =>
                 <select
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                    className="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block p-2.5"
+                    className="bg-bone-light border border-bone-dark text-tobacco text-sm rounded-[12px] focus:ring-cedar/30 focus:border-cedar block p-2.5"
                 >
                     {MONTHS.map((m, i) => (
                         <option key={i} value={i}>{m}</option>
@@ -113,23 +113,23 @@ export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data }) =>
                             domain={[0, 365]}
                             reversed={true}
                             tickCount={8}
-                            label={{ value: "Days Before Check-in", position: "insideBottom", offset: -5, fontSize: 12, fill: '#6b7280' }}
-                            tick={{ fill: '#6b7280', fontSize: 12 }}
+                            label={{ value: "Days Before Check-in", position: "insideBottom", offset: -5, fontSize: 12, fill: '#5D6D59' }}
+                            tick={{ fill: '#5D6D59', fontSize: 12 }}
                         />
                         <YAxis
                             tickFormatter={(value) => `$${value / 1000}k`}
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#6b7280', fontSize: 12 }}
+                            tick={{ fill: '#5D6D59', fontSize: 12, fontFamily: '"JetBrains Mono", monospace' }}
                         />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend verticalAlign="top" height={36} />
                         {currentDaysOut >= 0 && currentDaysOut <= 365 && (
                             <ReferenceLine
                                 x={currentDaysOut}
-                                stroke="#dc2626"
+                                stroke="#8B3A3A"
                                 strokeDasharray="3 3"
-                                label={{ value: "TODAY", position: "top", fill: "#dc2626", fontSize: 12, fontWeight: "bold" }}
+                                label={{ value: "TODAY", position: "top", fill: "#8B3A3A", fontSize: 12, fontWeight: "bold" }}
                             />
                         )}
                         <Line

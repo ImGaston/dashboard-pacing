@@ -25,10 +25,10 @@ const MONTHS = [
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ];
 
-// Colors
-const COLOR_OTB_2026 = "#10b981"; // Emerald-500
-const COLOR_STLY_2025 = "#9ca3af"; // Gray-400
-const COLOR_FINAL_2025 = "#374151"; // Gray-700 (Charcoal)
+// Colors — brand palette
+const COLOR_OTB_2026 = "#13342D"; // Cedar
+const COLOR_STLY_2025 = "#76574C"; // Walnut
+const COLOR_FINAL_2025 = "#5D6D59"; // Moss
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -37,28 +37,28 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         const final2025 = payload.find((p: any) => p.dataKey === 'revenue2025Final')?.value || 0;
 
         const pace = stly2025 > 0 ? ((otb2026 - stly2025) / stly2025) * 100 : 0;
-        const paceColor = pace >= 0 ? 'text-emerald-600' : 'text-red-500';
+        const paceColor = pace >= 0 ? 'text-success' : 'text-error';
 
         return (
-            <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-lg text-xs">
-                <p className="font-bold text-gray-800 mb-2">{label}</p>
+            <div className="bg-bone-light p-3 border border-bone-dark shadow-[0_4px_12px_rgba(22,25,16,0.08)] rounded-lg text-xs">
+                <p className="font-bold text-onyx mb-2">{label}</p>
                 <div className="flex items-center gap-2 mb-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="text-gray-600">2026 OTB:</span>
+                    <span className="w-2 h-2 rounded-full bg-cedar"></span>
+                    <span className="text-moss">2026 OTB:</span>
                     <span className="font-mono font-medium">${otb2026.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center gap-2 mb-1">
-                    <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-                    <span className="text-gray-600">2025 STLY:</span>
+                    <span className="w-2 h-2 rounded-full bg-walnut"></span>
+                    <span className="text-moss">2025 STLY:</span>
                     <span className="font-mono font-medium">${stly2025.toLocaleString()}</span>
                 </div>
-                <div className="flex items-center gap-2 mb-2 border-b border-gray-100 pb-2">
-                    <span className="w-2 h-2 rounded-full bg-gray-700"></span>
-                    <span className="text-gray-600">2025 Final:</span>
+                <div className="flex items-center gap-2 mb-2 border-b border-bone-dark pb-2">
+                    <span className="w-2 h-2 rounded-full bg-moss"></span>
+                    <span className="text-moss">2025 Final:</span>
                     <span className="font-mono font-medium">${final2025.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center pt-1">
-                    <span className="text-gray-500 font-medium">Pace (vs STLY):</span>
+                    <span className="text-walnut font-medium">Pace (vs STLY):</span>
                     <span className={`font-bold ${paceColor}`}>
                         {pace > 0 ? "+" : ""}{pace.toFixed(1)}%
                     </span>
@@ -119,13 +119,13 @@ export const PacingSnapshotChart: React.FC<PacingSnapshotChartProps> = ({ data, 
                         dataKey="month"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: '#6b7280', fontSize: 12 }}
+                        tick={{ fill: '#5D6D59', fontSize: 12 }}
                         dy={10}
                     />
                     <YAxis
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: '#6b7280', fontSize: 12 }}
+                        tick={{ fill: '#5D6D59', fontSize: 12, fontFamily: '"JetBrains Mono", monospace' }}
                         tickFormatter={(value) => `$${value / 1000}k`}
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
@@ -133,7 +133,7 @@ export const PacingSnapshotChart: React.FC<PacingSnapshotChartProps> = ({ data, 
                         verticalAlign="top"
                         height={36}
                         iconType="circle"
-                        formatter={(value) => <span className="text-gray-600 text-sm font-medium ml-1">{value}</span>}
+                        formatter={(value) => <span className="text-moss text-sm font-medium ml-1">{value}</span>}
                     />
                     <Bar
                         dataKey="revenue2026OTB"

@@ -16,28 +16,28 @@ Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
-    <thead ref={ref} className={cn("text-xs text-moss uppercase bg-bone/50 font-bold tracking-wider", className)} {...props} />
+    <thead ref={ref} className={cn("text-[9px] text-walnut uppercase bg-bone-light font-bold tracking-[2px]", className)} {...props} />
   )
 )
 TableHeader.displayName = "TableHeader"
 
 const TableBody = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
-    <tbody ref={ref} className={cn("divide-y divide-moss/10", className)} {...props} />
+    <tbody ref={ref} className={cn("divide-y divide-bone-dark", className)} {...props} />
   )
 )
 TableBody.displayName = "TableBody"
 
 const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
-    <tfoot ref={ref} className={cn("border-t border-moss/10 bg-bone/30 font-medium", className)} {...props} />
+    <tfoot ref={ref} className={cn("border-t border-moss/10 bg-bone-muted/30 font-medium", className)} {...props} />
   )
 )
 TableFooter.displayName = "TableFooter"
 
 const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
   ({ className, ...props }, ref) => (
-    <tr ref={ref} className={cn("hover:bg-bone/30 transition-colors", className)} {...props} />
+    <tr ref={ref} className={cn("hover:bg-bone-light transition-colors duration-[120ms]", className)} {...props} />
   )
 )
 TableRow.displayName = "TableRow"

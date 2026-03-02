@@ -188,7 +188,7 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
             variant="ghost"
             size="sm"
             onClick={onDisconnect}
-            className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="gap-2 text-error hover:text-error hover:bg-error-bg"
           >
             <Unplug className="h-4 w-4" />
             Disconnect
@@ -198,7 +198,7 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
 
       {/* Error banner */}
       {error && (
-        <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 text-sm p-4 rounded-lg">
+        <div className="flex items-start gap-3 bg-error-bg border border-error/30 text-error text-sm p-4 rounded-[12px]">
           <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
           <p>{error}</p>
         </div>

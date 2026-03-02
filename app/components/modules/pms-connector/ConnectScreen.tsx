@@ -147,7 +147,7 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
 
           {/* Error message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg">
+            <div className="bg-error-bg border border-error/30 text-error text-sm p-3 rounded-[12px]">
               {error}
             </div>
           )}

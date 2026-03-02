@@ -31,13 +31,13 @@ const PMSSignupCard = ({
         <div
             onClick={onClick}
             className={cn(
-                "cursor-pointer rounded-xl p-6 border transition-all duration-200 flex flex-col items-center text-center space-y-3 h-full hover:shadow-md",
+                "cursor-pointer rounded-[12px] p-6 border transition-all duration-200 flex flex-col items-center text-center space-y-3 h-full hover:shadow-[0_2px_6px_rgba(22,25,16,0.06),0_8px_24px_rgba(22,25,16,0.10)]",
                 isSelected
                     ? "bg-cedar border-cedar text-bone shadow-lg scale-105"
-                    : "bg-white border-moss/20 hover:border-cedar text-onyx"
+                    : "bg-bone-light border-bone-dark hover:border-cedar text-onyx"
             )}
         >
-            <div className={cn("p-3 rounded-full mb-1", isSelected ? "bg-bone/10" : "bg-bone")}>
+            <div className={cn("p-3 rounded-full mb-1", isSelected ? "bg-bone/10" : "bg-bone-muted")}>
                 {Icon ? <Icon className={cn("w-6 h-6", isSelected ? "text-bone" : "text-cedar")} /> : <FileSpreadsheet className={cn("w-6 h-6", isSelected ? "text-bone" : "text-cedar")} />}
             </div>
             <h3 className="font-bold uppercase tracking-wider text-sm">{title}</h3>
@@ -81,7 +81,7 @@ const UploadZone = ({
                 <button onClick={onClear} className="absolute top-2 right-2 p-1 text-moss hover:text-red-600 transition-colors z-10">
                     <X className="w-5 h-5" />
                 </button>
-                <div className="bg-white p-3 rounded-full mb-3 shadow-sm">
+                <div className="bg-bone-light p-3 rounded-full mb-3 shadow-sm">
                     <FileCheck className="w-6 h-6 text-cedar" />
                 </div>
                 <p className="text-sm font-bold text-onyx truncate max-w-[200px]">{file.name}</p>
@@ -96,11 +96,11 @@ const UploadZone = ({
             className={cn(
                 "border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 group",
                 heightClass,
-                isDragActive ? "border-cedar bg-cedar/5" : "border-moss/30 hover:border-cedar hover:bg-white/60"
+                isDragActive ? "border-cedar bg-cedar/5" : "border-moss/30 hover:border-cedar hover:bg-bone-light/60"
             )}
         >
             <input {...getInputProps()} />
-            <div className="bg-bone p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+            <div className="bg-bone-muted p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
                 <Upload className="w-6 h-6 text-cedar" />
             </div>
             <p className="text-sm font-medium text-onyx mb-1">{label}</p>
@@ -237,7 +237,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
             <div className="min-h-screen bg-bone flex flex-col items-center justify-center p-4 font-sans text-tobacco animate-fade-in">
                 <div className="w-full max-w-4xl space-y-8">
                     <div className="text-center space-y-2">
-                        <h1 className="text-5xl font-serif text-onyx italic">revfactor</h1>
                         <p className="text-moss tracking-widest text-sm uppercase">Select Data Source</p>
                     </div>
 
@@ -273,12 +272,10 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                     <button onClick={() => setStep(1)} className="text-sm font-bold text-moss hover:text-cedar flex items-center gap-1 transition-colors">
                         <RefreshCw className="w-4 h-4" /> CHANGE PMS ({pms?.toUpperCase()})
                     </button>
-                    <div className="text-right">
-                        <h1 className="text-3xl font-serif text-onyx italic">revfactor</h1>
-                    </div>
+                    <div className="text-right" />
                 </div>
 
-                <div className="bg-white/50 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-white/60 space-y-6">
+                <div className="bg-bone-light/50 backdrop-blur-sm p-8 rounded-[12px] shadow-[0_1px_3px_rgba(22,25,16,0.04),0_4px_12px_rgba(22,25,16,0.06)] border border-bone-dark/60 space-y-6">
 
                     {/* HOSTAWAY UPLOAD */}
                     {pms === 'hostaway' && (
@@ -315,7 +312,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
 
                     {/* CUSTOM MAPPING UI */}
                     {pms === 'custom' && singleFile && customHeaders.length > 0 && (
-                        <div className="bg-white p-4 rounded-xl border border-moss/20 space-y-4">
+                        <div className="bg-bone-light p-4 rounded-[12px] border border-bone-dark space-y-4">
                             <h3 className="font-bold text-onyx text-sm uppercase">Map Columns</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 {Object.keys(customMapping).map((key) => {
@@ -324,7 +321,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                                         <div key={key} className="space-y-1">
                                             <label className="text-xs font-bold text-moss uppercase">{key}</label>
                                             <select
-                                                className="w-full p-2 bg-bone border border-moss/20 rounded"
+                                                className="w-full p-2 bg-bone-muted border border-moss/20 rounded"
                                                 value={(customMapping as any)[key]}
                                                 onChange={(e) => setCustomMapping(prev => ({ ...prev, [key]: e.target.value }))}
                                             >
@@ -340,7 +337,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                                         <div className="space-y-1">
                                             <label className="text-xs font-bold text-moss uppercase">Status Column (Optional)</label>
                                             <select
-                                                className="w-full p-2 bg-bone border border-moss/20 rounded"
+                                                className="w-full p-2 bg-bone-muted border border-moss/20 rounded"
                                                 value={customStatusCol}
                                                 onChange={(e) => setCustomStatusCol(e.target.value)}
                                             >
@@ -353,7 +350,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                                                 <label className="text-xs font-bold text-moss uppercase">Include if equals</label>
                                                 <input
                                                     type="text"
-                                                    className="w-full p-2 bg-bone border border-moss/20 rounded"
+                                                    className="w-full p-2 bg-bone-muted border border-moss/20 rounded"
                                                     value={customStatusFilter}
                                                     onChange={(e) => setCustomStatusFilter(e.target.value)}
                                                     placeholder="e.g. accepted"
@@ -368,17 +365,17 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
 
                     {/* VALIDATION SUMMARY */}
                     {validationSummary && (
-                        <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-sm space-y-2">
-                            <p className="font-bold text-emerald-800 flex items-center gap-2">
+                        <div className="bg-success-bg border border-success/30 p-4 rounded-[12px] text-sm space-y-2">
+                            <p className="font-bold text-success flex items-center gap-2">
                                 <FileCheck className="w-4 h-4" /> File parsed successfully
                             </p>
-                            <ul className="list-disc list-inside text-emerald-700 pl-1 space-y-1 text-xs">
+                            <ul className="list-disc list-inside text-success pl-1 space-y-1 text-xs">
                                 <li><strong>{validationSummary.count}</strong> valid reservations found</li>
                                 <li>Date range: {validationSummary.dateRange}</li>
                                 <li>Properties: {validationSummary.properties.join(', ')} {validationSummary.properties.length > 3 && '...'}</li>
                             </ul>
                             {validationSummary.cancelled > 0 && (
-                                <p className="text-amber-600 text-xs flex items-center gap-1 mt-2">
+                                <p className="text-warning text-xs flex items-center gap-1 mt-2">
                                     <AlertCircle className="w-3 h-3" /> {validationSummary.cancelled} cancelled reservations excluded
                                 </p>
                             )}
@@ -393,14 +390,14 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                                 type="date"
                                 value={date}
                                 onChange={(e) => setDate(e.target.value)}
-                                className="w-full p-3 bg-white border border-moss/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-cedar/20 text-onyx font-sans"
+                                className="w-full p-3 bg-bone-light border border-bone-dark rounded-[12px] focus:outline-none focus:ring-2 focus:ring-cedar/30 text-onyx font-sans"
                             />
                         </div>
 
                         <button
                             disabled={isProcessing || (pms === 'hostaway' ? (!hostawayFiles.prev || !hostawayFiles.curr) : (!singleFile))}
                             className={cn(
-                                "w-full py-4 bg-cedar text-bone font-bold tracking-widest rounded-lg hover:bg-onyx transition-colors shadow-lg active:scale-95 duration-200 flex items-center justify-center gap-2",
+                                "w-full py-4 bg-cedar text-bone font-bold tracking-widest rounded-full hover:bg-onyx transition-colors shadow-[0_1px_3px_rgba(22,25,16,0.06)] active:scale-95 duration-200 flex items-center justify-center gap-2",
                                 (isProcessing || (pms === 'hostaway' ? (!hostawayFiles.prev || !hostawayFiles.curr) : (!singleFile))) && "opacity-70 cursor-not-allowed"
                             )}
                             onClick={handleGenerate}

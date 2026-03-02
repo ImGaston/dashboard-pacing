@@ -51,8 +51,8 @@ export function PMSConnector() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-pulse space-y-6">
-          <div className="h-12 bg-bone rounded-lg w-full" />
-          <div className="h-64 bg-bone rounded-xl" />
+          <div className="h-12 bg-bone-muted rounded-lg w-full" />
+          <div className="h-64 bg-bone-muted rounded-[12px]" />
         </div>
       </div>
     );
@@ -61,11 +61,11 @@ export function PMSConnector() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Beta warning banner */}
-      <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm p-4 rounded-lg">
+      <div className="flex items-start gap-3 bg-warning-bg border border-warning/30 text-warning text-sm p-4 rounded-[12px]">
         <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
         <div>
           <p className="font-medium">Beta Feature</p>
-          <p className="text-amber-700 mt-0.5">
+          <p className="text-warning mt-0.5">
             PMS Connector is in beta. Your API credentials are stored locally in
             your browser and are never sent to our servers. Data is fetched
             directly from your PMS provider.
