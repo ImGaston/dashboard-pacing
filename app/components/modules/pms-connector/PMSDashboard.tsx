@@ -8,6 +8,7 @@ import { ListingsTable } from "./ListingsTable";
 import { ReservationsTable } from "./ReservationsTable";
 import { FinancialsChart } from "./FinancialsChart";
 import { PacingTabContent } from "./PacingTabContent";
+import { BookingPacingTab } from "./BookingPacingTab";
 import {
   normalizeAllHostaway,
   buildListingsMap as buildPacingListingsMap,
@@ -324,6 +325,7 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
             Reservations ({reservations.length})
           </TabsTrigger>
           <TabsTrigger value="financials">Financials</TabsTrigger>
+          <TabsTrigger value="booking-pacing">Booking Pacing</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pacing">
@@ -347,6 +349,10 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
 
         <TabsContent value="financials">
           <FinancialsChart financials={financials} loading={loading} />
+        </TabsContent>
+
+        <TabsContent value="booking-pacing">
+          <BookingPacingTab data={pacingData} loading={loading} />
         </TabsContent>
       </Tabs>
     </div>
