@@ -95,8 +95,11 @@ export interface PMSCredentials {
 export interface PMSListing {
     id: string;
     name: string;
-    type: string;
-    status: string;
+    state: string;
+    city: string;
+    personCapacity: number;
+    bedrooms: number;
+    bathrooms: number;
 }
 
 export interface PMSReservation {
@@ -105,6 +108,7 @@ export interface PMSReservation {
     listingName: string;
     checkIn: string;
     checkOut: string;
+    reservationDate: string;
     revenue: number;
     status: string;
     channel: string;

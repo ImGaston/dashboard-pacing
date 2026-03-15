@@ -44,6 +44,8 @@ export function PMSConnector() {
 
   const handleDisconnect = () => {
     clearCredentials();
+    // Also clear cached PMS data
+    localStorage.removeItem("revfactor_pms_cache");
     setCredentials(null);
   };
 

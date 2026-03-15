@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install --save-dev dotenv tsx)"
+      "Bash(npm install --save-dev dotenv tsx)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

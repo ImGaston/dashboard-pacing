@@ -16,23 +16,6 @@ interface ListingsTableProps {
   loading: boolean;
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const normalized = status.toLowerCase();
-  const isActive = normalized === "active" || normalized === "listed" || normalized === "live";
-
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-        isActive
-          ? "bg-success-bg text-success border border-success/30"
-          : "bg-moss/10 text-moss border border-bone-dark"
-      }`}
-    >
-      {status}
-    </span>
-  );
-}
-
 export function ListingsTable({ listings, loading }: ListingsTableProps) {
   if (loading) {
     return (
@@ -64,28 +47,40 @@ export function ListingsTable({ listings, loading }: ListingsTableProps) {
             <p className="text-moss text-sm">No properties found.</p>
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {listings.map((listing) => (
-                <TableRow key={listing.id}>
-                  <TableCell className="font-medium text-onyx">
-                    {listing.name}
-                  </TableCell>
-                  <TableCell>{listing.type || "—"}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={listing.status || "Unknown"} />
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>City</TableHead>
+                  <TableHead>State</TableHead>
+                  <TableHead className="text-center">Guests</TableHead>
+                  <TableHead className="text-center">Bedrooms</TableHead>
+                  <TableHead className="text-center">Bathrooms</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {listings.map((listing) => (
+                  <TableRow key={listing.id}>
+                    <TableCell className="font-medium text-onyx">
+                      {listing.name}
+                    </TableCell>
+                    <TableCell>{listing.city || "—"}</TableCell>
+                    <TableCell>{listing.state || "—"}</TableCell>
+                    <TableCell className="text-center font-mono">
+                      {listing.personCapacity || "—"}
+                    </TableCell>
+                    <TableCell className="text-center font-mono">
+                      {listing.bedrooms || "—"}
+                    </TableCell>
+                    <TableCell className="text-center font-mono">
+                      {listing.bathrooms || "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>

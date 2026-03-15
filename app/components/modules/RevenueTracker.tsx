@@ -61,6 +61,10 @@ export function RevenueTracker() {
     setEntries((prev) => [...prev, entry]);
   }, []);
 
+  const replaceEntry = useCallback((entry: RevenueEntry) => {
+    setEntries((prev) => prev.map((e) => e.id === entry.id ? entry : e));
+  }, []);
+
   const deleteEntry = useCallback(
     (id: string) => {
       setEntries((prev) => prev.filter((e) => e.id !== id));
@@ -83,7 +87,7 @@ export function RevenueTracker() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Form Section */}
-      <RevenueEntryForm onSave={addEntry} existingProperties={properties} />
+      <RevenueEntryForm onSave={addEntry} onReplace={replaceEntry} existingEntries={entries} existingProperties={properties} />
 
       {/* Filter + heading */}
       {entries.length > 0 && (
