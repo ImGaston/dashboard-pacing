@@ -17,6 +17,7 @@ import type { Reservation } from '@/types';
 
 interface BookingCurveChartProps {
     data: Reservation[];
+    referenceDate?: Date;
 }
 
 const MONTHS = [
@@ -44,28 +45,29 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data }) => {
+export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data, referenceDate = new Date() }) => {
+    const currentYear = getYear(referenceDate);
+    const prevYear = currentYear - 1;
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
 
     const currentDaysOut = useMemo(() => {
-        const targetYear = 2026;
-        const firstDayOfMonth = new Date(targetYear, selectedMonth, 1);
+        const firstDayOfMonth = new Date(currentYear, selectedMonth, 1);
         const today = new Date();
 
         return differenceInDays(firstDayOfMonth, today);
-    }, [selectedMonth]);
+    }, [selectedMonth, currentYear]);
 
     const chartData = useMemo(() => {
         // 1. Filter data for the selected month
         const filteredData = data.filter(res => getMonth(res.checkInDate) === selectedMonth);
 
         // 2. Pre-calculate lead times and revenues
-        const reservations2025 = filteredData.filter(r => getYear(r.checkInDate) === 2025).map(r => ({
+        const reservationsPrev = filteredData.filter(r => getYear(r.checkInDate) === prevYear).map(r => ({
             revenue: r.revenue,
             leadTime: differenceInDays(startOfDay(r.checkInDate), startOfDay(r.reservationDate))
         }));
 
-        const reservations2026 = filteredData.filter(r => getYear(r.checkInDate) === 2026).map(r => ({
+        const reservationsCurrent = filteredData.filter(r => getYear(r.checkInDate) === currentYear).map(r => ({
             revenue: r.revenue,
             leadTime: differenceInDays(startOfDay(r.checkInDate), startOfDay(r.reservationDate))
         }));
@@ -73,18 +75,18 @@ export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data }) =>
         // 3. Generate curve points from 365 down to 0
         const points = [];
         for (let daysOut = 365; daysOut >= 0; daysOut--) {
-            const rev2025 = reservations2025.reduce((sum, r) => r.leadTime >= daysOut ? sum + r.revenue : sum, 0);
-            const rev2026 = reservations2026.reduce((sum, r) => r.leadTime >= daysOut ? sum + r.revenue : sum, 0);
+            const revPrev = reservationsPrev.reduce((sum, r) => r.leadTime >= daysOut ? sum + r.revenue : sum, 0);
+            const revCurrent = reservationsCurrent.reduce((sum, r) => r.leadTime >= daysOut ? sum + r.revenue : sum, 0);
 
             points.push({
                 daysOut,
-                cumulative2025: rev2025,
-                cumulative2026: rev2026
+                cumulativePrev: revPrev,
+                cumulativeCurrent: revCurrent
             });
         }
 
         return points;
-    }, [data, selectedMonth]);
+    }, [data, selectedMonth, currentYear, prevYear]);
 
     return (
         <div className="w-full">
@@ -134,8 +136,8 @@ export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data }) =>
                         )}
                         <Line
                             type="monotone"
-                            dataKey="cumulative2026"
-                            name={`2026 (Forward)`}
+                            dataKey="cumulativeCurrent"
+                            name={`${currentYear} (Forward)`}
                             stroke={COLOR_2026}
                             strokeWidth={3}
                             dot={false}
@@ -143,8 +145,8 @@ export const BookingCurveChart: React.FC<BookingCurveChartProps> = ({ data }) =>
                         />
                         <Line
                             type="monotone"
-                            dataKey="cumulative2025"
-                            name={`2025 (Reference)`}
+                            dataKey="cumulativePrev"
+                            name={`${prevYear} (Reference)`}
                             stroke={COLOR_2025}
                             strokeWidth={2}
                             strokeDasharray="5 5"

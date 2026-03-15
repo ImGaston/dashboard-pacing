@@ -30,13 +30,13 @@ const COLOR_OTB_2026 = "#13342D"; // Cedar
 const COLOR_STLY_2025 = "#76574C"; // Walnut
 const COLOR_FINAL_2025 = "#5D6D59"; // Moss
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, currentYear, prevYear }: any) => {
     if (active && payload && payload.length) {
-        const otb2026 = payload.find((p: any) => p.dataKey === 'revenue2026OTB')?.value || 0;
-        const stly2025 = payload.find((p: any) => p.dataKey === 'revenue2025STLY')?.value || 0;
-        const final2025 = payload.find((p: any) => p.dataKey === 'revenue2025Final')?.value || 0;
+        const otbCurrent = payload.find((p: any) => p.dataKey === 'revenueCurrentOTB')?.value || 0;
+        const stlyPrev = payload.find((p: any) => p.dataKey === 'revenuePrevSTLY')?.value || 0;
+        const finalPrev = payload.find((p: any) => p.dataKey === 'revenuePrevFinal')?.value || 0;
 
-        const pace = stly2025 > 0 ? ((otb2026 - stly2025) / stly2025) * 100 : 0;
+        const pace = stlyPrev > 0 ? ((otbCurrent - stlyPrev) / stlyPrev) * 100 : 0;
         const paceColor = pace >= 0 ? 'text-success' : 'text-error';
 
         return (
@@ -44,18 +44,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 <p className="font-bold text-onyx mb-2">{label}</p>
                 <div className="flex items-center gap-2 mb-1">
                     <span className="w-2 h-2 rounded-full bg-cedar"></span>
-                    <span className="text-moss">2026 OTB:</span>
-                    <span className="font-mono font-medium">${otb2026.toLocaleString()}</span>
+                    <span className="text-moss">{currentYear} OTB:</span>
+                    <span className="font-mono font-medium">${otbCurrent.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center gap-2 mb-1">
                     <span className="w-2 h-2 rounded-full bg-walnut"></span>
-                    <span className="text-moss">2025 STLY:</span>
-                    <span className="font-mono font-medium">${stly2025.toLocaleString()}</span>
+                    <span className="text-moss">{prevYear} STLY:</span>
+                    <span className="font-mono font-medium">${stlyPrev.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center gap-2 mb-2 border-b border-bone-dark pb-2">
                     <span className="w-2 h-2 rounded-full bg-moss"></span>
-                    <span className="text-moss">2025 Final:</span>
-                    <span className="font-mono font-medium">${final2025.toLocaleString()}</span>
+                    <span className="text-moss">{prevYear} Final:</span>
+                    <span className="font-mono font-medium">${finalPrev.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center pt-1">
                     <span className="text-walnut font-medium">Pace (vs STLY):</span>
@@ -70,15 +70,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export const PacingSnapshotChart: React.FC<PacingSnapshotChartProps> = ({ data, referenceDate = new Date() }) => {
+    const currentYear = getYear(referenceDate);
+    const prevYear = currentYear - 1;
+
     const chartData = useMemo(() => {
         const stlyDate = subYears(referenceDate, 1);
 
         // Initialize monthly data
         const monthlyData = MONTHS.map(month => ({
             month,
-            revenue2026OTB: 0,
-            revenue2025STLY: 0,
-            revenue2025Final: 0
+            revenueCurrentOTB: 0,
+            revenuePrevSTLY: 0,
+            revenuePrevFinal: 0
         }));
 
         data.forEach(res => {
@@ -87,25 +90,25 @@ export const PacingSnapshotChart: React.FC<PacingSnapshotChartProps> = ({ data, 
             const bookingDate = startOfDay(res.reservationDate);
             const revenue = res.revenue;
 
-            // 2026 OTB: Checkin 2026 AND Booking <= Reference Date
-            if (checkInYear === 2026) {
+            // Current Year OTB: Checkin in current year AND Booking <= Reference Date
+            if (checkInYear === currentYear) {
                 if (isBefore(bookingDate, referenceDate) || isSameDay(bookingDate, referenceDate)) {
-                    monthlyData[monthIndex].revenue2026OTB += revenue;
+                    monthlyData[monthIndex].revenueCurrentOTB += revenue;
                 }
             }
 
-            // 2025 STLY: Checkin 2025 AND Booking <= (Reference Date - 1 Year)
-            if (checkInYear === 2025) {
+            // Previous Year STLY: Checkin in prev year AND Booking <= (Reference Date - 1 Year)
+            if (checkInYear === prevYear) {
                 if (isBefore(bookingDate, stlyDate) || isSameDay(bookingDate, stlyDate)) {
-                    monthlyData[monthIndex].revenue2025STLY += revenue;
+                    monthlyData[monthIndex].revenuePrevSTLY += revenue;
                 }
-                // 2025 Final: Checkin 2025 (No booking date filter)
-                monthlyData[monthIndex].revenue2025Final += revenue;
+                // Previous Year Final: Checkin in prev year (No booking date filter)
+                monthlyData[monthIndex].revenuePrevFinal += revenue;
             }
         });
 
         return monthlyData;
-    }, [data, referenceDate]);
+    }, [data, referenceDate, currentYear, prevYear]);
 
     return (
         <div className="w-full h-[400px]">
@@ -128,7 +131,7 @@ export const PacingSnapshotChart: React.FC<PacingSnapshotChartProps> = ({ data, 
                         tick={{ fill: '#5D6D59', fontSize: 12, fontFamily: '"JetBrains Mono", monospace' }}
                         tickFormatter={(value) => `$${value / 1000}k`}
                     />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                    <Tooltip content={<CustomTooltip currentYear={currentYear} prevYear={prevYear} />} cursor={{ fill: 'transparent' }} />
                     <Legend
                         verticalAlign="top"
                         height={36}
@@ -136,23 +139,23 @@ export const PacingSnapshotChart: React.FC<PacingSnapshotChartProps> = ({ data, 
                         formatter={(value) => <span className="text-moss text-sm font-medium ml-1">{value}</span>}
                     />
                     <Bar
-                        dataKey="revenue2026OTB"
-                        name="2026 OTB"
+                        dataKey="revenueCurrentOTB"
+                        name={`${currentYear} OTB`}
                         fill={COLOR_OTB_2026}
                         radius={[4, 4, 0, 0]}
                         barSize={20}
                     />
                     <Bar
-                        dataKey="revenue2025STLY"
-                        name="2025 STLY"
+                        dataKey="revenuePrevSTLY"
+                        name={`${prevYear} STLY`}
                         fill={COLOR_STLY_2025}
                         radius={[4, 4, 0, 0]}
                         barSize={20}
                     />
                     <Line
                         type="monotone"
-                        dataKey="revenue2025Final"
-                        name="2025 Final"
+                        dataKey="revenuePrevFinal"
+                        name={`${prevYear} Final`}
                         stroke={COLOR_FINAL_2025}
                         strokeWidth={2}
                         dot={{ r: 3, fill: COLOR_FINAL_2025, strokeWidth: 0 }}

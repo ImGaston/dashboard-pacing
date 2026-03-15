@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/ui/ta
 import { ListingsTable } from "./ListingsTable";
 import { ReservationsTable } from "./ReservationsTable";
 import { FinancialsChart } from "./FinancialsChart";
+import { PacingTabContent } from "./PacingTabContent";
 import type { PMSCredentials, PMSListing, PMSReservation, PMSFinancialMonth } from "@/types";
 
 interface PMSDashboardProps {
@@ -27,7 +28,7 @@ function buildHeaders(creds: PMSCredentials): HeadersInit {
 function normalizeHostawayListings(raw: any[]): PMSListing[] {
   return raw.map((l) => ({
     id: String(l.id),
-    name: l.name || l.internalName || "Unnamed",
+    name: l.internalListingName || l.name || "Unnamed",
     type: l.propertyTypeId ? `Type ${l.propertyTypeId}` : l.type || "Property",
     status: l.isActive ? "Active" : l.status || "Inactive",
   }));
@@ -205,8 +206,9 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
       )}
 
       {/* Data tabs */}
-      <Tabs defaultValue="listings">
+      <Tabs defaultValue="pacing">
         <TabsList>
+          <TabsTrigger value="pacing">Pacing Dashboard</TabsTrigger>
           <TabsTrigger value="listings">
             Listings ({listings.length})
           </TabsTrigger>
@@ -215,6 +217,10 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
           </TabsTrigger>
           <TabsTrigger value="financials">Financials</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="pacing">
+          <PacingTabContent credentials={credentials} />
+        </TabsContent>
 
         <TabsContent value="listings">
           <ListingsTable listings={listings} loading={loading} />

@@ -152,7 +152,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ rawData, comparisonDate, o
                     </div>
                     <div className="bg-bone-light p-6 rounded-[12px] shadow-[0_1px_3px_rgba(22,25,16,0.04),0_4px_12px_rgba(22,25,16,0.06)] border border-bone">
                         <h2 className="text-lg font-bold text-onyx mb-6 font-serif lowercase">booking curve velocity</h2>
-                        <BookingCurveChart data={filteredRawData} />
+                        <BookingCurveChart data={filteredRawData} referenceDate={comparisonDate} />
                     </div>
                 </div>
 

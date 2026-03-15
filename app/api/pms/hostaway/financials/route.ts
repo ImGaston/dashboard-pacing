@@ -1,22 +1,5 @@
 import { NextResponse } from "next/server";
-
-async function getHostawayToken(accountId: string, apiKey: string) {
-  const body = new URLSearchParams({
-    grant_type: "client_credentials",
-    client_id: accountId,
-    client_secret: apiKey,
-  });
-
-  const res = await fetch("https://api.hostaway.com/v1/accessTokens", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString(),
-  });
-
-  if (!res.ok) throw new Error(`Hostaway auth failed (${res.status})`);
-  const data = await res.json();
-  return data.access_token as string;
-}
+import { getHostawayToken } from "../_lib/auth";
 
 export async function GET(request: Request) {
   const apiKey = request.headers.get("authorization")?.replace("Bearer ", "");
