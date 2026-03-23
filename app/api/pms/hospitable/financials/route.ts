@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+const API_BASE = "https://public.api.hospitable.com/v2";
+const MAX_PAGES = 50;
+
 export async function GET(request: Request) {
   const apiKey = request.headers.get("authorization")?.replace("Bearer ", "");
 
@@ -7,37 +10,88 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing API key" }, { status: 401 });
   }
 
-  try {
-    const res = await fetch(
-      "https://api.hospitable.com/reservations?limit=500&sort=-check_in",
-      { headers: { Authorization: `Bearer ${apiKey}` } }
-    );
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    Accept: "application/json",
+  };
 
-    if (!res.ok) {
-      const err = await res.text();
-      return NextResponse.json({ error: err }, { status: res.status });
+  try {
+    // Step 1: Fetch all property IDs (required by the reservations endpoint)
+    const propertyIds: string[] = [];
+    let propsUrl: string | null = `${API_BASE}/properties?per_page=100`;
+
+    while (propsUrl) {
+      const propsRes: Response = await fetch(propsUrl, { headers });
+      if (!propsRes.ok) break;
+      const propsData = await propsRes.json();
+      const batch = propsData.data || [];
+      for (const p of batch) {
+        if (p.id) propertyIds.push(p.id);
+      }
+      propsUrl = propsData.links?.next || null;
     }
 
-    const data = await res.json();
-    const reservations = data.data || [];
+    if (propertyIds.length === 0) {
+      return NextResponse.json({ data: [] });
+    }
 
-    // Aggregate revenue by month from reservations
+    // Step 2: Fetch all reservations with date range + financials
+    const propertiesParam = propertyIds
+      .map((id) => `properties[]=${encodeURIComponent(id)}`)
+      .join("&");
+
+    const queryParams = [
+      propertiesParam,
+      "start_date=2025-01-01",
+      "end_date=2026-12-31",
+      "date_query=checkin",
+      "status[]=accepted",
+      "status[]=request",
+      "include=financials",
+      "per_page=100",
+      "page=1",
+    ].join("&");
+
+    const allReservations: any[] = [];
+    let nextUrl: string | null = `${API_BASE}/reservations?${queryParams}`;
+    let pages = 0;
+
+    while (nextUrl && pages < MAX_PAGES) {
+      if (pages > 0) {
+        await new Promise((r) => setTimeout(r, 5000));
+      }
+      const res: Response = await fetch(nextUrl, { headers });
+      if (!res.ok) break;
+      const data = await res.json();
+      const batch = data.data || [];
+      allReservations.push(...batch);
+      nextUrl = data.links?.next || null;
+      pages++;
+    }
+
+    // Step 3: Aggregate revenue by month
     const monthMap: Record<string, number> = {};
     const MONTHS = [
       "Jan", "Feb", "Mar", "Apr", "May", "Jun",
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
 
-    for (const r of reservations) {
-      const checkIn = r.check_in || r.checkin_date || r.arrival_date;
+    for (const r of allReservations) {
+      const checkIn = r.check_in || r.arrival_date;
       if (!checkIn) continue;
       const date = new Date(checkIn);
       if (isNaN(date.getTime())) continue;
 
       const key = `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
-      const revenue = parseFloat(
-        r.total_paid || r.host_payout || r.total_price || r.payout || "0"
-      );
+
+      // Hospitable amounts are in CENTS — divide by 100
+      const cents =
+        r.financials?.host?.revenue?.amount ??
+        r.financials?.host?.accommodation?.amount ??
+        r.financials?.guest?.total_price?.amount ??
+        0;
+      const revenue = (typeof cents === "number" ? cents : parseFloat(String(cents))) / 100;
+
       monthMap[key] = (monthMap[key] || 0) + revenue;
     }
 

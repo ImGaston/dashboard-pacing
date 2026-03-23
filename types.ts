@@ -83,12 +83,13 @@ export interface RevenueEntry {
 
 // ── PMS Connector types ──
 
-export type PMSProvider = "hostaway" | "hospitable";
+export type PMSProvider = "hostaway" | "hospitable" | "ownerrez";
 
 export interface PMSCredentials {
     provider: PMSProvider;
     apiKey: string;
     accountId?: string;       // Hostaway only
+    email?: string;           // OwnerRez only (Basic Auth = email:token)
     connectedAt: string;      // ISO date
 }
 

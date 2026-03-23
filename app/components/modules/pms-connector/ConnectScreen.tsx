@@ -23,6 +23,7 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
   const [provider, setProvider] = useState<PMSProvider | "">("");
   const [apiKey, setApiKey] = useState("");
   const [accountId, setAccountId] = useState("");
+  const [email, setEmail] = useState("");
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,11 +33,15 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
       return;
     }
     if (!apiKey.trim()) {
-      setError("API key is required.");
+      setError("API key / token is required.");
       return;
     }
     if (provider === "hostaway" && !accountId.trim()) {
       setError("Account ID is required for Hostaway.");
+      return;
+    }
+    if (provider === "ownerrez" && !email.trim()) {
+      setError("Email is required for OwnerRez.");
       return;
     }
 
@@ -51,6 +56,7 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
           provider,
           apiKey: apiKey.trim(),
           accountId: provider === "hostaway" ? accountId.trim() : undefined,
+          email: provider === "ownerrez" ? email.trim() : undefined,
         }),
       });
 
@@ -61,6 +67,7 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
           provider: provider as PMSProvider,
           apiKey: apiKey.trim(),
           accountId: provider === "hostaway" ? accountId.trim() : undefined,
+          email: provider === "ownerrez" ? email.trim() : undefined,
           connectedAt: new Date().toISOString(),
         };
         onConnect(credentials);
@@ -73,6 +80,20 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
       setIsValidating(false);
     }
   };
+
+  const apiKeyPlaceholder =
+    provider === "hostaway"
+      ? "Your Hostaway API Key"
+      : provider === "ownerrez"
+        ? "Your OwnerRez API Token"
+        : "Your Hospitable API Key";
+
+  const apiKeyHelp =
+    provider === "hostaway"
+      ? "Find this in Hostaway → Settings → API Keys."
+      : provider === "ownerrez"
+        ? "Find this in OwnerRez → Settings → API Access → Personal API Token."
+        : "Find this in Hospitable → Settings → Developer → API Keys.";
 
   return (
     <div className="max-w-lg mx-auto">
@@ -105,6 +126,7 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
               <SelectContent>
                 <SelectItem value="hostaway">Hostaway</SelectItem>
                 <SelectItem value="hospitable">Hospitable</SelectItem>
+                <SelectItem value="ownerrez">OwnerRez</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -122,26 +144,34 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
             </div>
           )}
 
-          {/* API Key (shown for both) */}
+          {/* OwnerRez: Email */}
+          {provider === "ownerrez" && (
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Your OwnerRez account email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          )}
+
+          {/* API Key (shown for all providers) */}
           {provider && (
             <div className="space-y-2">
-              <Label htmlFor="apiKey">API Key</Label>
+              <Label htmlFor="apiKey">
+                {provider === "ownerrez" ? "API Token" : "API Key"}
+              </Label>
               <Input
                 id="apiKey"
                 type="password"
-                placeholder={
-                  provider === "hostaway"
-                    ? "Your Hostaway API Key"
-                    : "Your Hospitable API Key"
-                }
+                placeholder={apiKeyPlaceholder}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
               />
-              <p className="text-xs text-moss">
-                {provider === "hostaway"
-                  ? "Find this in Hostaway → Settings → API Keys."
-                  : "Find this in Hospitable → Settings → Developer → API Keys."}
-              </p>
+              <p className="text-xs text-moss">{apiKeyHelp}</p>
             </div>
           )}
 

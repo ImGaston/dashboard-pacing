@@ -24,7 +24,7 @@ async function getHostawayToken(accountId: string, apiKey: string) {
 
 export async function POST(request: Request) {
   try {
-    const { provider, apiKey, accountId } = await request.json();
+    const { provider, apiKey, accountId, email } = await request.json();
 
     if (!provider || !apiKey) {
       return NextResponse.json(
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     if (provider === "hospitable") {
       // Validate by making a test request to list properties
       try {
-        const res = await fetch("https://api.hospitable.com/properties?limit=1", {
+        const res = await fetch("https://public.api.hospitable.com/v2/properties?per_page=1", {
           headers: { Authorization: `Bearer ${apiKey}` },
         });
 
@@ -72,6 +72,37 @@ export async function POST(request: Request) {
         return NextResponse.json({
           valid: false,
           error: "Could not reach Hospitable API. Check your connection.",
+        });
+      }
+    }
+
+    if (provider === "ownerrez") {
+      if (!email) {
+        return NextResponse.json({
+          valid: false,
+          error: "Email is required for OwnerRez.",
+        });
+      }
+
+      // OwnerRez uses HTTP Basic Auth: base64(email:apiToken)
+      try {
+        const basicAuth = Buffer.from(`${email}:${apiKey}`).toString("base64");
+        const res = await fetch("https://api.ownerrez.com/v2/users/me", {
+          headers: { Authorization: `Basic ${basicAuth}` },
+        });
+
+        if (!res.ok) {
+          return NextResponse.json({
+            valid: false,
+            error: `Invalid OwnerRez credentials (${res.status}).`,
+          });
+        }
+
+        return NextResponse.json({ valid: true });
+      } catch {
+        return NextResponse.json({
+          valid: false,
+          error: "Could not reach OwnerRez API. Check your connection.",
         });
       }
     }

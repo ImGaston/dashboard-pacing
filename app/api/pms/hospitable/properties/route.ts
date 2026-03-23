@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const res = await fetch("https://api.hospitable.com/properties?limit=100", {
+    const res = await fetch("https://public.api.hospitable.com/v2/properties?per_page=100", {
       headers: { Authorization: `Bearer ${apiKey}` },
     });
 
