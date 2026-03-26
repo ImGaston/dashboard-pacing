@@ -1,8 +1,9 @@
 "use client";
 
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Dashboard } from "@/app/components/Dashboard";
+import { LoadingCarousel } from "./LoadingCarousel";
 import type { Reservation } from "@/types";
 
 interface PacingTabContentProps {
@@ -12,6 +13,7 @@ interface PacingTabContentProps {
   setComparisonDate: (date: Date) => void;
   totalFetched: number;
   loading: boolean;
+  pmsName?: string;
 }
 
 export function PacingTabContent({
@@ -21,20 +23,11 @@ export function PacingTabContent({
   setComparisonDate,
   totalFetched,
   loading,
+  pmsName = "your PMS",
 }: PacingTabContentProps) {
   // Loading state (parent is fetching data)
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Loader2 className="h-10 w-10 text-cedar animate-spin mb-4" />
-        <p className="text-lg font-serif text-onyx">
-          Loading reservations...
-        </p>
-        <p className="text-sm text-moss mt-1">
-          Fetching all reservations from Hostaway. This may take a moment.
-        </p>
-      </div>
-    );
+    return <LoadingCarousel pmsName={pmsName} />;
   }
 
   // No data yet (sync failed or no reservations)

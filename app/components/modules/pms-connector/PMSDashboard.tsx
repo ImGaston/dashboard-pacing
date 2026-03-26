@@ -517,6 +517,7 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
             setComparisonDate={setPacingComparisonDate}
             totalFetched={pacingTotalFetched}
             loading={loading}
+            pmsName={PROVIDER_LABELS[credentials.provider] ?? credentials.provider}
           />
         </TabsContent>
 
