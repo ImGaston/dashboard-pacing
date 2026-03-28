@@ -34,6 +34,10 @@ export async function GET(request: Request) {
     ];
 
     for (const r of reservations) {
+      // Only include confirmed reservations (new/modified) for financials
+      const status = (r.status || "").toLowerCase();
+      if (status !== "new" && status !== "modified") continue;
+
       const checkIn = r.arrivalDate || r.checkInDate || r.startDate;
       if (!checkIn) continue;
       const date = new Date(checkIn);

@@ -46,7 +46,6 @@ export async function GET(request: Request) {
       "end_date=2026-12-31",
       "date_query=checkin",
       "status[]=accepted",
-      "status[]=request",
       "include=financials",
       "per_page=100",
       "page=1",

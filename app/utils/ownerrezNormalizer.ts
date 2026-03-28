@@ -46,9 +46,9 @@ export function normalizeOwnerrezToReservation(
   // Skip owner blocks
   if (raw.is_block) return null;
 
-  // Status filter — skip canceled
+  // Status filter — only confirmed reservations count for analytics
   const status = (raw.status || "").toLowerCase();
-  if (status === "canceled") return null;
+  if (status !== "active") return null;
 
   // Channel
   const rawChannel = (raw.listing_site || "").toLowerCase().trim();

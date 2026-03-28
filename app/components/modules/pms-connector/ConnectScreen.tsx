@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plug, Loader2 } from "lucide-react";
+import { Plug, Loader2, ExternalLink, HelpCircle } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -130,6 +130,83 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
               </SelectContent>
             </Select>
           </div>
+
+          {/* API setup help */}
+          {provider && (
+            <div className="bg-cedar/5 border border-cedar/15 rounded-[12px] p-4 space-y-2">
+              <div className="flex items-center gap-2 text-cedar font-semibold text-sm">
+                <HelpCircle className="h-4 w-4" />
+                How to get your {provider === "hostaway" ? "Hostaway" : provider === "hospitable" ? "Hospitable" : "OwnerRez"} API credentials
+              </div>
+              {provider === "hospitable" && (
+                <ol className="text-xs text-tobacco space-y-1 list-decimal list-inside">
+                  <li>Log in to your Hospitable account</li>
+                  <li>Go to <span className="font-medium">Apps</span> (or Settings → Integrations)</li>
+                  <li>Choose <span className="font-medium">API access</span> and generate a Personal Access Token</li>
+                  <li className="pt-1">
+                    <a
+                      href="https://help.hospitable.com/en/articles/8609392-accessing-the-public-api-with-a-personal-access-token-pat"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-cedar underline underline-offset-2 hover:text-cedar/80"
+                    >
+                      View full guide <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </li>
+                </ol>
+              )}
+              {provider === "hostaway" && (
+                <ol className="text-xs text-tobacco space-y-1 list-decimal list-inside">
+                  <li>Log in to your Hostaway dashboard</li>
+                  <li>Go to <span className="font-medium">Settings → Hostaway API</span></li>
+                  <li>Copy your <span className="font-medium">Account ID</span> and <span className="font-medium">API Key</span></li>
+                  <li className="pt-1 space-x-3">
+                    <a
+                      href="https://dashboard.hostaway.com/settings/hostaway-api"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-cedar underline underline-offset-2 hover:text-cedar/80"
+                    >
+                      Go to API settings <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <a
+                      href="https://support.hostaway.com/hc/en-us/articles/360002576293-Hostaway-Public-API-Account-Secret-Key"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-cedar underline underline-offset-2 hover:text-cedar/80"
+                    >
+                      View full guide <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </li>
+                </ol>
+              )}
+              {provider === "ownerrez" && (
+                <ol className="text-xs text-tobacco space-y-1 list-decimal list-inside">
+                  <li>Log in to your OwnerRez account</li>
+                  <li>Go to <span className="font-medium">Settings → API</span></li>
+                  <li>Copy your <span className="font-medium">Email</span> and <span className="font-medium">API Token</span></li>
+                  <li className="pt-1 space-x-3">
+                    <a
+                      href="https://app.ownerrez.com/settings/api"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-cedar underline underline-offset-2 hover:text-cedar/80"
+                    >
+                      Go to API settings <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <a
+                      href="https://www.ownerrez.com/support/articles/api-overview"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-cedar underline underline-offset-2 hover:text-cedar/80"
+                    >
+                      View full guide <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </li>
+                </ol>
+              )}
+            </div>
+          )}
 
           {/* Hostaway: Account ID */}
           {provider === "hostaway" && (

@@ -69,12 +69,11 @@ export function normalizeHospitableToReservation(
   }
   if (nights <= 0) return null;
 
-  // Status filter
+  // Status filter — only confirmed reservations count for analytics
   const statusCategory = (
     raw.reservation_status?.current?.category || raw.status || ""
   ).toLowerCase();
-  if (statusCategory === "cancelled" || statusCategory === "canceled")
-    return null;
+  if (statusCategory !== "accepted") return null;
 
   // Channel normalization
   const rawChannel = (raw.platform || "direct").toLowerCase().trim();

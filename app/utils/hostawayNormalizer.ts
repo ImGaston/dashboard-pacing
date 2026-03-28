@@ -44,9 +44,9 @@ export function normalizeHostawayToReservation(
   }
   if (nights <= 0) return null;
 
-  // Status filter
+  // Status filter — only confirmed reservations count for analytics
   const status = (raw.status || "").toLowerCase();
-  if (status === "cancelled" || status === "canceled") return null;
+  if (status !== "new" && status !== "modified") return null;
 
   // Channel normalization
   const rawChannel = (raw.channelName || raw.source || "direct")
