@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Plug, Loader2, ExternalLink, HelpCircle } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
@@ -36,8 +37,8 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
       setError("API key / token is required.");
       return;
     }
-    if (provider === "hostaway" && !accountId.trim()) {
-      setError("Account ID is required for Hostaway.");
+    if ((provider === "hostaway" || provider === "guesty") && !accountId.trim()) {
+      setError(provider === "guesty" ? "Client ID is required for Guesty." : "Account ID is required for Hostaway.");
       return;
     }
     if (provider === "ownerrez" && !email.trim()) {
@@ -55,7 +56,7 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
         body: JSON.stringify({
           provider,
           apiKey: apiKey.trim(),
-          accountId: provider === "hostaway" ? accountId.trim() : undefined,
+          accountId: (provider === "hostaway" || provider === "guesty") ? accountId.trim() : undefined,
           email: provider === "ownerrez" ? email.trim() : undefined,
         }),
       });
@@ -66,8 +67,9 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
         const credentials: PMSCredentials = {
           provider: provider as PMSProvider,
           apiKey: apiKey.trim(),
-          accountId: provider === "hostaway" ? accountId.trim() : undefined,
+          accountId: (provider === "hostaway" || provider === "guesty") ? accountId.trim() : undefined,
           email: provider === "ownerrez" ? email.trim() : undefined,
+          agencyUid: provider === "hostfully" ? data.agencyUid : undefined,
           connectedAt: new Date().toISOString(),
         };
         onConnect(credentials);
@@ -86,14 +88,22 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
       ? "Your Hostaway API Key"
       : provider === "ownerrez"
         ? "Your OwnerRez API Token"
-        : "Your Hospitable API Key";
+        : provider === "hostfully"
+          ? "Your Hostfully API Key"
+          : provider === "guesty"
+            ? "Your Guesty Client Secret"
+            : "Your Hospitable API Key";
 
   const apiKeyHelp =
     provider === "hostaway"
       ? "Find this in Hostaway → Settings → API Keys."
       : provider === "ownerrez"
         ? "Find this in OwnerRez → Settings → API Access → Personal API Token."
-        : "Find this in Hospitable → Settings → Developer → API Keys.";
+        : provider === "hostfully"
+          ? "Find this in Hostfully → Agency Settings → API Key."
+          : provider === "guesty"
+            ? "Find this in Guesty → Integrations → API & Webhooks."
+            : "Find this in Hospitable → Settings → Developer → API Keys.";
 
   return (
     <div className="max-w-lg mx-auto">
@@ -124,9 +134,36 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
                 <SelectValue placeholder="Select your PMS..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hostaway">Hostaway</SelectItem>
-                <SelectItem value="hospitable">Hospitable</SelectItem>
-                <SelectItem value="ownerrez">OwnerRez</SelectItem>
+                <SelectItem value="hostaway">
+                  <span className="inline-flex items-center gap-2.5">
+                    <Image src="/hostaway.jpeg" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
+                    Hostaway
+                  </span>
+                </SelectItem>
+                <SelectItem value="hospitable">
+                  <span className="inline-flex items-center gap-2.5">
+                    <Image src="/hospitable.png" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
+                    Hospitable
+                  </span>
+                </SelectItem>
+                <SelectItem value="ownerrez">
+                  <span className="inline-flex items-center gap-2.5">
+                    <Image src="/owerrez.png" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
+                    OwnerRez
+                  </span>
+                </SelectItem>
+                <SelectItem value="hostfully">
+                  <span className="inline-flex items-center gap-2.5">
+                    <Image src="/hostfully.jpeg" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
+                    Hostfully
+                  </span>
+                </SelectItem>
+                <SelectItem value="guesty">
+                  <span className="inline-flex items-center gap-2.5">
+                    <Image src="/guesty.jpeg" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
+                    Guesty
+                  </span>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -205,16 +242,69 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
                   </li>
                 </ol>
               )}
+              {provider === "hostfully" && (
+                <ol className="text-xs text-tobacco space-y-1 list-decimal list-inside">
+                  <li>Log in to your Hostfully account</li>
+                  <li>Go to <span className="font-medium">Agency Settings</span></li>
+                  <li>Copy your <span className="font-medium">API Key</span></li>
+                  <li className="pt-1 space-x-3">
+                    <a
+                      href="https://platform.hostfully.com/app/#/agency-settings"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-cedar underline underline-offset-2 hover:text-cedar/80"
+                    >
+                      Go to Agency Settings <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <a
+                      href="https://dev.hostfully.com/v3.0/reference/authentication"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-cedar underline underline-offset-2 hover:text-cedar/80"
+                    >
+                      View API docs <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </li>
+                </ol>
+              )}
+              {provider === "guesty" && (
+                <ol className="text-xs text-tobacco space-y-1 list-decimal list-inside">
+                  <li>Log in to your Guesty dashboard</li>
+                  <li>Go to <span className="font-medium">Integrations → API & Webhooks</span></li>
+                  <li>Create a new API application</li>
+                  <li>Copy your <span className="font-medium">Client ID</span> and <span className="font-medium">Client Secret</span></li>
+                  <li className="pt-1 space-x-3">
+                    <a
+                      href="https://app.guesty.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-cedar underline underline-offset-2 hover:text-cedar/80"
+                    >
+                      Go to Guesty Dashboard <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <a
+                      href="https://open-api-docs.guesty.com/docs/authentication"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-cedar underline underline-offset-2 hover:text-cedar/80"
+                    >
+                      View auth guide <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </li>
+                </ol>
+              )}
             </div>
           )}
 
-          {/* Hostaway: Account ID */}
-          {provider === "hostaway" && (
+          {/* Hostaway: Account ID / Guesty: Client ID */}
+          {(provider === "hostaway" || provider === "guesty") && (
             <div className="space-y-2">
-              <Label htmlFor="accountId">Account ID</Label>
+              <Label htmlFor="accountId">
+                {provider === "guesty" ? "Client ID" : "Account ID"}
+              </Label>
               <Input
                 id="accountId"
-                placeholder="Your Hostaway Account ID"
+                placeholder={provider === "guesty" ? "Your Guesty Client ID" : "Your Hostaway Account ID"}
                 value={accountId}
                 onChange={(e) => setAccountId(e.target.value)}
               />
@@ -239,7 +329,7 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
           {provider && (
             <div className="space-y-2">
               <Label htmlFor="apiKey">
-                {provider === "ownerrez" ? "API Token" : "API Key"}
+                {provider === "ownerrez" ? "API Token" : provider === "guesty" ? "Client Secret" : "API Key"}
               </Label>
               <Input
                 id="apiKey"

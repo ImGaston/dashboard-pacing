@@ -21,6 +21,14 @@ import {
   normalizeAllOwnerrez,
   buildOwnerrezPropertiesMap,
 } from "@/app/utils/ownerrezNormalizer";
+import {
+  normalizeAllHostfully,
+  buildHostfullyPropertiesMap,
+} from "@/app/utils/hostfullyNormalizer";
+import {
+  normalizeAllGuesty,
+  buildGuestyListingsMap,
+} from "@/app/utils/guestyNormalizer";
 import type { PMSCredentials, PMSListing, PMSReservation, PMSFinancialMonth, Reservation } from "@/types";
 
 interface PMSDashboardProps {
@@ -35,6 +43,7 @@ interface PMSCache {
   rawListings: any[];
   rawReservations: any[];
   rawFinancials: any[];
+  rawOrders?: Record<string, any>; // Hostfully: leadUid → order
   lastSynced: string;
   provider: string;
 }
@@ -62,9 +71,19 @@ function saveCache(cache: PMSCache) {
 
 function buildHeaders(creds: PMSCredentials): HeadersInit {
   if (creds.provider === "ownerrez" && creds.email) {
-    // OwnerRez uses HTTP Basic Auth: base64(email:apiToken)
     const basicAuth = btoa(`${creds.email}:${creds.apiKey}`);
     return { Authorization: `Basic ${basicAuth}` };
+  }
+
+  if (creds.provider === "hostfully") {
+    return { "X-HOSTFULLY-APIKEY": creds.apiKey };
+  }
+
+  if (creds.provider === "guesty") {
+    return {
+      "X-GUESTY-CLIENT-ID": creds.accountId || "",
+      "X-GUESTY-CLIENT-SECRET": creds.apiKey,
+    };
   }
 
   const headers: HeadersInit = {
@@ -129,11 +148,66 @@ function computeOwnerrezFinancials(rawBookings: any[]): PMSFinancialMonth[] {
     if (isNaN(date.getTime())) continue;
 
     const status = (b.status || "").toLowerCase();
-    if (status === "canceled") continue;
+    if (status !== "active") continue;
     if (b.is_block) continue;
 
     const key = `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
     const revenue = b.total_amount || 0;
+    monthMap[key] = (monthMap[key] || 0) + revenue;
+  }
+
+  return sortFinancials(monthMap);
+}
+
+/**
+ * Compute financials from Hostfully leads + orders.
+ * Only BOOKED + BOOKING leads count. Revenue from Order.totalAmount (dollars).
+ */
+function computeHostfullyFinancials(rawLeads: any[], ordersMap: Record<string, any>): PMSFinancialMonth[] {
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthMap: Record<string, number> = {};
+
+  for (const lead of rawLeads) {
+    if ((lead.status || "").toUpperCase() !== "BOOKED") continue;
+    if ((lead.type || "").toUpperCase() !== "BOOKING") continue;
+
+    const checkIn = lead.checkInZonedDateTime || lead.checkInLocalDateTime;
+    if (!checkIn) continue;
+    const date = new Date(checkIn);
+    if (isNaN(date.getTime())) continue;
+
+    const order = ordersMap[lead.uid];
+    const revenue = order?.totalAmount || 0;
+    if (revenue <= 0) continue;
+
+    const key = `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+    monthMap[key] = (monthMap[key] || 0) + revenue;
+  }
+
+  return sortFinancials(monthMap);
+}
+
+/**
+ * Compute financials from Guesty reservations.
+ * Only confirmed + closed count. Revenue from money.hostPayout (dollars).
+ */
+function computeGuestyFinancials(rawReservations: any[]): PMSFinancialMonth[] {
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthMap: Record<string, number> = {};
+
+  for (const r of rawReservations) {
+    const status = (r.status || "").toLowerCase();
+    if (status !== "confirmed" && status !== "closed") continue;
+
+    const checkIn = r.checkInDateLocalized || r.checkIn;
+    if (!checkIn) continue;
+    const date = new Date(checkIn);
+    if (isNaN(date.getTime())) continue;
+
+    const revenue = r.money?.hostPayout || r.money?.fareAccommodation || r.money?.subTotalPrice || 0;
+    if (revenue <= 0) continue;
+
+    const key = `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
     monthMap[key] = (monthMap[key] || 0) + revenue;
   }
 
@@ -188,6 +262,32 @@ function normalizeOwnerrezListings(raw: any[]): PMSListing[] {
     bedrooms: Number(p.bedrooms || 0),
     bathrooms: Number(p.bathrooms || 0),
   }));
+}
+
+function normalizeGuestyListings(raw: any[]): PMSListing[] {
+  return raw.map((l) => ({
+    id: String(l._id),
+    name: l.nickname || l.title || "Unnamed",
+    state: "",
+    city: l.address?.city || "",
+    personCapacity: Number(l.accommodates || 0),
+    bedrooms: Number(l.bedrooms || 0),
+    bathrooms: 0, // Not directly available in Guesty listing API
+  }));
+}
+
+function normalizeHostfullyListings(raw: any[]): PMSListing[] {
+  return raw
+    .filter((p) => p.isActive !== false)
+    .map((p) => ({
+      id: String(p.uid),
+      name: p.name || "Unnamed",
+      state: p.address?.state || "",
+      city: p.address?.city || "",
+      personCapacity: 0, // Not a direct field in Hostfully
+      bedrooms: Number(p.bedrooms || 0),
+      bathrooms: Number(p.bathrooms || 0),
+    }));
 }
 
 /* ── Reservation normalizers (for table display) ── */
@@ -266,12 +366,86 @@ function normalizeOwnerrezReservations(raw: any[], listingsMap: Map<string, stri
   });
 }
 
+const GUESTY_CHANNEL_MAP: Record<string, string> = {
+  airbnb2: "Airbnb",
+  airbnb: "Airbnb",
+  bookingcom: "Booking.com",
+  homeaway2: "VRBO",
+  homeaway: "VRBO",
+  vrbo: "VRBO",
+  tripadvisor: "TripAdvisor",
+  rentalsunited: "Rentals United",
+  manual: "Direct",
+  direct: "Direct",
+  website: "Direct",
+};
+
+function normalizeGuestyReservations(raw: any[], listingsMap: Map<string, string>): PMSReservation[] {
+  return raw.map((r) => {
+    const source = (r.source || "direct").toLowerCase();
+    return {
+      id: String(r._id),
+      guestName: r.guest?.fullName || r.guest?.firstName || "Guest",
+      listingName: listingsMap.get(r.listingId) || `Listing ${r.listingId || "Unknown"}`,
+      checkIn: r.checkInDateLocalized || r.checkIn || "",
+      checkOut: r.checkOutDateLocalized || r.checkOut || "",
+      reservationDate: r.createdAt || "",
+      revenue: r.money?.hostPayout || r.money?.fareAccommodation || 0,
+      status: r.status || "Unknown",
+      channel: GUESTY_CHANNEL_MAP[source] || source.charAt(0).toUpperCase() + source.slice(1),
+    };
+  });
+}
+
+const HOSTFULLY_CHANNEL_MAP: Record<string, string> = {
+  DIRECT_AIRBNB: "Airbnb",
+  DIRECT_VRBO: "VRBO",
+  DIRECT_BOOKINGDOTCOM: "Booking.com",
+  DIRECT_HOMETOGO: "HomeToGo",
+  DIRECT_GOOGLE: "Google",
+  DIRECT_REDAWNING: "RedAwning",
+  HOSTFULLY_DBS: "Direct",
+  HOSTFULLY_UI: "Direct",
+  HOSTFULLY_API: "Direct",
+  HOSTFULLY_LINKED: "Direct",
+  HOSTFULLY_OWNER_PORTAL: "Direct",
+  HOSTFULLY_ICAL: "Direct",
+};
+
+function normalizeHostfullyReservations(rawLeads: any[], ordersMap: Record<string, any>, listingsMap: Map<string, string>): PMSReservation[] {
+  return rawLeads
+    .filter((l) => (l.type || "").toUpperCase() !== "BLOCK")
+    .map((lead) => {
+      const firstName = lead.guestInformation?.firstName || "";
+      const lastName = lead.guestInformation?.lastName || "";
+      const guestName = [firstName, lastName].filter((n) => n && n !== "HIDDEN").join(" ") || "Guest";
+
+      const order = ordersMap[lead.uid];
+      const revenue = order?.totalAmount || 0;
+      const source = (lead.source || "").toUpperCase();
+
+      return {
+        id: String(lead.uid),
+        guestName,
+        listingName: listingsMap.get(lead.propertyUid) || `Property ${lead.propertyUid || "Unknown"}`,
+        checkIn: lead.checkInZonedDateTime || lead.checkInLocalDateTime || "",
+        checkOut: lead.checkOutZonedDateTime || lead.checkOutLocalDateTime || "",
+        reservationDate: lead.bookedUtcDateTime || "",
+        revenue,
+        status: lead.status || "Unknown",
+        channel: HOSTFULLY_CHANNEL_MAP[source] || source || "Direct",
+      };
+    });
+}
+
 /* ── Provider label ── */
 
 const PROVIDER_LABELS: Record<string, string> = {
   hostaway: "Hostaway",
   hospitable: "Hospitable",
   ownerrez: "OwnerRez",
+  hostfully: "Hostfully",
+  guesty: "Guesty",
 };
 
 /* ── Main component ── */
@@ -292,14 +466,18 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
   const prov = credentials.provider;
 
   // Process raw data into all normalized states
-  const processRawData = useCallback((rawListings: any[], rawReservations: any[], rawFinancials: any[]) => {
+  const processRawData = useCallback((rawListings: any[], rawReservations: any[], rawFinancials: any[], rawOrders?: Record<string, any>) => {
     // Listings
     const normalizedListings =
       prov === "hostaway"
         ? normalizeHostawayListings(rawListings)
         : prov === "ownerrez"
           ? normalizeOwnerrezListings(rawListings)
-          : normalizeHospitableListings(rawListings);
+          : prov === "hostfully"
+            ? normalizeHostfullyListings(rawListings)
+            : prov === "guesty"
+              ? normalizeGuestyListings(rawListings)
+              : normalizeHospitableListings(rawListings);
     setListings(normalizedListings);
 
     // Build id → name map for reservation normalization
@@ -309,16 +487,29 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
     }
 
     // Reservations (for table)
-    setReservations(
-      prov === "hostaway"
-        ? normalizeHostawayReservations(rawReservations, listingsMap)
-        : prov === "ownerrez"
-          ? normalizeOwnerrezReservations(rawReservations, listingsMap)
-          : normalizeHospitableReservations(rawReservations)
-    );
+    if (prov === "hostfully") {
+      setReservations(normalizeHostfullyReservations(rawReservations, rawOrders || {}, listingsMap));
+    } else if (prov === "guesty") {
+      setReservations(normalizeGuestyReservations(rawReservations, listingsMap));
+    } else {
+      setReservations(
+        prov === "hostaway"
+          ? normalizeHostawayReservations(rawReservations, listingsMap)
+          : prov === "ownerrez"
+            ? normalizeOwnerrezReservations(rawReservations, listingsMap)
+            : normalizeHospitableReservations(rawReservations)
+      );
+    }
 
     // Pacing data (for dashboard charts)
-    if (prov === "hostaway") {
+    if (prov === "hostfully") {
+      const propsMap = buildHostfullyPropertiesMap(rawListings);
+      const ordersMap = new Map<string, any>(Object.entries(rawOrders || {}));
+      setPacingData(normalizeAllHostfully(rawReservations, ordersMap, propsMap));
+    } else if (prov === "guesty") {
+      const guestyMap = buildGuestyListingsMap(rawListings);
+      setPacingData(normalizeAllGuesty(rawReservations, guestyMap));
+    } else if (prov === "hostaway") {
       const pacingListingsMap = buildPacingListingsMap(rawListings);
       setPacingData(normalizeAllHostaway(rawReservations, pacingListingsMap));
     } else if (prov === "ownerrez") {
@@ -345,6 +536,7 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
       let rawListings: any[] = [];
       let rawReservations: any[] = [];
       let rawFinancials: any[] = [];
+      let rawOrders: Record<string, any> = {};
 
       if (prov === "hostaway") {
         // Hostaway: fetch all 3 in parallel (no rate limit issues)
@@ -366,6 +558,64 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
           const data = await finRes.value.json();
           rawFinancials = data.result || data.data || [];
         }
+      } else if (prov === "hostfully") {
+        // Hostfully: fetch listings + leads in parallel, then fetch orders for BOOKED leads
+        const agencyUid = credentials.agencyUid || "";
+
+        const [listRes, resRes] = await Promise.allSettled([
+          fetch(`/api/pms/hostfully/listings?agencyUid=${encodeURIComponent(agencyUid)}`, { headers }),
+          fetch(`/api/pms/hostfully/reservations?agencyUid=${encodeURIComponent(agencyUid)}`, { headers }),
+        ]);
+
+        if (listRes.status === "fulfilled" && listRes.value.ok) {
+          const data = await listRes.value.json();
+          rawListings = data.result || data.data || [];
+        }
+        if (resRes.status === "fulfilled" && resRes.value.ok) {
+          const data = await resRes.value.json();
+          rawReservations = data.data || [];
+        }
+
+        // Fetch orders for BOOKED leads (financial data lives on Order objects)
+        const bookedLeadUids = rawReservations
+          .filter((l: any) =>
+            (l.status || "").toUpperCase() === "BOOKED" &&
+            (l.type || "").toUpperCase() === "BOOKING"
+          )
+          .map((l: any) => l.uid)
+          .filter(Boolean);
+
+        if (bookedLeadUids.length > 0) {
+          const ordersRes = await fetch("/api/pms/hostfully/orders", {
+            method: "POST",
+            headers: { ...headers, "Content-Type": "application/json" },
+            body: JSON.stringify({ leadUids: bookedLeadUids }),
+          });
+
+          if (ordersRes.ok) {
+            const ordersData = await ordersRes.json();
+            rawOrders = ordersData.data || {};
+          }
+        }
+
+        rawFinancials = computeHostfullyFinancials(rawReservations, rawOrders);
+      } else if (prov === "guesty") {
+        // Guesty: listings + reservations in parallel, financials computed client-side
+        const [listRes, resRes] = await Promise.allSettled([
+          fetch("/api/pms/guesty/listings", { headers }),
+          fetch("/api/pms/guesty/reservations", { headers }),
+        ]);
+
+        if (listRes.status === "fulfilled" && listRes.value.ok) {
+          const data = await listRes.value.json();
+          rawListings = data.result || data.data || [];
+        }
+        if (resRes.status === "fulfilled" && resRes.value.ok) {
+          const data = await resRes.value.json();
+          rawReservations = data.data || [];
+        }
+
+        rawFinancials = computeGuestyFinancials(rawReservations);
       } else if (prov === "ownerrez") {
         // OwnerRez: properties + reservations in parallel, financials computed client-side
         const [listRes, resRes] = await Promise.allSettled([
@@ -418,13 +668,14 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
           "Could not fetch data from your PMS. Your credentials may have expired."
         );
       } else {
-        processRawData(rawListings, rawReservations, rawFinancials);
+        processRawData(rawListings, rawReservations, rawFinancials, rawOrders);
 
         const syncTime = new Date().toLocaleString();
         saveCache({
           rawListings,
           rawReservations,
           rawFinancials,
+          rawOrders,
           lastSynced: syncTime,
           provider: credentials.provider,
         });
@@ -441,7 +692,7 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
   useEffect(() => {
     const cached = loadCache(credentials.provider);
     if (cached) {
-      processRawData(cached.rawListings, cached.rawReservations, cached.rawFinancials);
+      processRawData(cached.rawListings, cached.rawReservations, cached.rawFinancials, cached.rawOrders);
       setLastSynced(cached.lastSynced);
       setLoading(false);
     } else {

@@ -107,6 +107,79 @@ export async function POST(request: Request) {
       }
     }
 
+    if (provider === "hostfully") {
+      // Validate by fetching agencies with the API key
+      try {
+        const res = await fetch("https://platform.hostfully.com/api/v3/agencies", {
+          headers: {
+            "X-HOSTFULLY-APIKEY": apiKey,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          return NextResponse.json({
+            valid: false,
+            error: `Invalid Hostfully API key (${res.status}).`,
+          });
+        }
+
+        const data = await res.json();
+        // Return the agencyUid so the client can store it
+        const agencies = data.agencies || data || [];
+        const agencyUid = Array.isArray(agencies) ? agencies[0]?.uid : agencies.uid;
+
+        return NextResponse.json({ valid: true, agencyUid });
+      } catch {
+        return NextResponse.json({
+          valid: false,
+          error: "Could not reach Hostfully API. Check your connection.",
+        });
+      }
+    }
+
+    if (provider === "guesty") {
+      if (!accountId) {
+        return NextResponse.json({
+          valid: false,
+          error: "Client ID is required for Guesty.",
+        });
+      }
+
+      // Validate by attempting OAuth token exchange
+      try {
+        const body = new URLSearchParams({
+          grant_type: "client_credentials",
+          scope: "open-api",
+          client_id: accountId,
+          client_secret: apiKey,
+        });
+
+        const res = await fetch("https://open-api.guesty.com/oauth2/token", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: body.toString(),
+        });
+
+        if (!res.ok) {
+          return NextResponse.json({
+            valid: false,
+            error: `Invalid Guesty credentials (${res.status}). Check your Client ID and Secret.`,
+          });
+        }
+
+        return NextResponse.json({ valid: true });
+      } catch {
+        return NextResponse.json({
+          valid: false,
+          error: "Could not reach Guesty API. Check your connection.",
+        });
+      }
+    }
+
     return NextResponse.json(
       { valid: false, error: "Unsupported provider" },
       { status: 400 }

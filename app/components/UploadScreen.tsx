@@ -240,6 +240,22 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                         <p className="text-moss tracking-widest text-sm uppercase">Select Data Source</p>
                     </div>
 
+                    {/* Data requirements guide */}
+                    <div className="bg-white border border-bone-dark/30 rounded-xl px-6 py-5 space-y-3 max-w-2xl mx-auto">
+                        <p className="text-sm text-tobacco leading-relaxed">
+                            Export your <span className="font-semibold text-onyx">reservations report</span> from your PMS as a CSV file. For year-over-year comparison, include data from both the current and previous year.
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 text-xs text-moss">
+                            <span className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-cedar shrink-0" />Check-in date</span>
+                            <span className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-cedar shrink-0" />Check-out date</span>
+                            <span className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-cedar shrink-0" />Booking date</span>
+                            <span className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-cedar shrink-0" />Revenue</span>
+                            <span className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-cedar shrink-0" />Nights</span>
+                            <span className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-cedar shrink-0" />Channel / Source</span>
+                            <span className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-cedar shrink-0" />Property / Listing</span>
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <PMSSignupCard
                             title="Hostaway"
