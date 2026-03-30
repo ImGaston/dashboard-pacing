@@ -257,24 +257,30 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onDataReady }) => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <PMSSignupCard
-                            title="Hostaway"
-                            description="Upload reservation exports for 2025 and 2026 (two files)."
-                            onClick={() => { setPms('hostaway'); setStep(2); }}
-                            isSelected={false}
-                        />
-                        <PMSSignupCard
-                            title="Hospitable"
-                            description="Upload a single reservations export file containing all data."
-                            onClick={() => { setPms('hospitable'); setStep(2); }}
-                            isSelected={false}
-                        />
-                        <PMSSignupCard
-                            title="Other CSV"
-                            description="Map your own columns manually from any CSV export."
-                            onClick={() => { setPms('custom'); setStep(2); }}
-                            isSelected={false}
-                        />
+                        <div data-umami-event="CSV Upload PMS Selected" data-umami-event-provider="Hostaway">
+                            <PMSSignupCard
+                                title="Hostaway"
+                                description="Upload reservation exports for 2025 and 2026 (two files)."
+                                onClick={() => { setPms('hostaway'); setStep(2); }}
+                                isSelected={false}
+                            />
+                        </div>
+                        <div data-umami-event="CSV Upload PMS Selected" data-umami-event-provider="Hospitable">
+                            <PMSSignupCard
+                                title="Hospitable"
+                                description="Upload a single reservations export file containing all data."
+                                onClick={() => { setPms('hospitable'); setStep(2); }}
+                                isSelected={false}
+                            />
+                        </div>
+                        <div data-umami-event="CSV Upload PMS Selected" data-umami-event-provider="Other CSV">
+                            <PMSSignupCard
+                                title="Other CSV"
+                                description="Map your own columns manually from any CSV export."
+                                onClick={() => { setPms('custom'); setStep(2); }}
+                                isSelected={false}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

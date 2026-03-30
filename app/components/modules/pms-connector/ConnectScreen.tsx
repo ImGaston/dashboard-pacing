@@ -134,31 +134,31 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
                 <SelectValue placeholder="Select your PMS..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hostaway">
+                <SelectItem value="hostaway" data-umami-event="PMS Selected" data-umami-event-provider="Hostaway">
                   <span className="inline-flex items-center gap-2.5">
                     <Image src="/hostaway.jpeg" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
                     Hostaway
                   </span>
                 </SelectItem>
-                <SelectItem value="hospitable">
+                <SelectItem value="hospitable" data-umami-event="PMS Selected" data-umami-event-provider="Hospitable">
                   <span className="inline-flex items-center gap-2.5">
                     <Image src="/hospitable.png" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
                     Hospitable
                   </span>
                 </SelectItem>
-                <SelectItem value="ownerrez">
+                <SelectItem value="ownerrez" data-umami-event="PMS Selected" data-umami-event-provider="OwnerRez">
                   <span className="inline-flex items-center gap-2.5">
                     <Image src="/owerrez.png" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
                     OwnerRez
                   </span>
                 </SelectItem>
-                <SelectItem value="hostfully">
+                <SelectItem value="hostfully" data-umami-event="PMS Selected" data-umami-event-provider="Hostfully">
                   <span className="inline-flex items-center gap-2.5">
                     <Image src="/hostfully.jpeg" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
                     Hostfully
                   </span>
                 </SelectItem>
-                <SelectItem value="guesty">
+                <SelectItem value="guesty" data-umami-event="PMS Selected" data-umami-event-provider="Guesty">
                   <span className="inline-flex items-center gap-2.5">
                     <Image src="/guesty.jpeg" alt="" width={20} height={20} className="rounded-[4px] object-contain" />
                     Guesty
@@ -354,6 +354,8 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
           <Button
             onClick={handleConnect}
             disabled={!provider || isValidating}
+            data-umami-event="PMS Connect"
+            data-umami-event-provider={provider || undefined}
             className="w-full gap-2"
           >
             {isValidating ? (

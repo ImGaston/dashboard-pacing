@@ -30,6 +30,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${cormorantGaramond.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <script defer src="https://umami-rgc.up.railway.app/script.js" data-website-id="663bbacf-908c-4414-91b7-66fb6f65a549" />
+      </head>
       <body>
         {children}
         <Toaster />

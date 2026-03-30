@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { LogOut } from "lucide-react";
+import { LogOut, Calendar } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
+import { ScheduleModal } from "@/app/components/ScheduleModal";
 
 interface NavbarProps {
   children?: React.ReactNode;
@@ -13,6 +14,7 @@ interface NavbarProps {
 export function Navbar({ children }: NavbarProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showSchedule, setShowSchedule] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("revfactor_auth");
@@ -115,7 +117,19 @@ export function Navbar({ children }: NavbarProps) {
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => setShowSchedule(true)}
+            data-umami-event="Book a Call"
+            className="text-cedar hover:text-cedar/80 gap-2 text-[9px] uppercase tracking-[2px] rounded-full shrink-0"
+          >
+            <Calendar className="w-4 h-4" />
+            <span className="hidden sm:inline">Book a Call</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={handleLogout}
+            data-umami-event="Logout"
             className="text-walnut hover:text-cedar gap-2 text-[9px] uppercase tracking-[2px] rounded-full shrink-0"
           >
             <LogOut className="w-4 h-4" />
@@ -123,6 +137,8 @@ export function Navbar({ children }: NavbarProps) {
           </Button>
         </nav>
       </div>
+
+      {showSchedule && <ScheduleModal onClose={() => setShowSchedule(false)} />}
     </div>
   );
 }

@@ -721,6 +721,8 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
             size="sm"
             onClick={fetchData}
             disabled={loading}
+            data-umami-event="PMS Sync Data"
+            data-umami-event-provider={credentials.provider}
             className="gap-2"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -730,6 +732,8 @@ export function PMSDashboard({ credentials, onDisconnect }: PMSDashboardProps) {
             variant="ghost"
             size="sm"
             onClick={onDisconnect}
+            data-umami-event="PMS Disconnect"
+            data-umami-event-provider={credentials.provider}
             className="gap-2 text-error hover:text-error hover:bg-error-bg"
           >
             <Unplug className="h-4 w-4" />

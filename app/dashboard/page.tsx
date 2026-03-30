@@ -33,10 +33,10 @@ export default function DashboardPage() {
                 <Tabs defaultValue="pacing">
                     <Navbar>
                         <TabsList>
-                            <TabsTrigger value="pacing">Pacing Tool</TabsTrigger>
-                            <TabsTrigger value="revenue">Revenue Tracker</TabsTrigger>
-                            <TabsTrigger value="api">PMS Connector</TabsTrigger>
-                            <TabsTrigger value="course">Mini Course</TabsTrigger>
+                            <TabsTrigger value="pacing" data-umami-event="Tab Click" data-umami-event-tab="Pacing Tool">Pacing Tool</TabsTrigger>
+                            <TabsTrigger value="revenue" data-umami-event="Tab Click" data-umami-event-tab="Revenue Tracker">Revenue Tracker</TabsTrigger>
+                            <TabsTrigger value="api" data-umami-event="Tab Click" data-umami-event-tab="PMS Connector">PMS Connector</TabsTrigger>
+                            <TabsTrigger value="course" data-umami-event="Tab Click" data-umami-event-tab="Mini Course">Mini Course</TabsTrigger>
                         </TabsList>
                     </Navbar>
 
