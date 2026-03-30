@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Plug, Loader2, ExternalLink, HelpCircle } from "lucide-react";
+import { Plug, Loader2, ExternalLink, HelpCircle, FlaskConical } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -293,6 +293,30 @@ export function ConnectScreen({ onConnect }: ConnectScreenProps) {
                   </li>
                 </ol>
               )}
+            </div>
+          )}
+
+          {/* Hostfully / Guesty beta notice */}
+          {(provider === "hostfully" || provider === "guesty") && (
+            <div className="bg-amber-50 border border-amber-300/50 rounded-[12px] p-4 space-y-2">
+              <div className="flex items-center gap-2 text-amber-700 font-semibold text-sm">
+                <FlaskConical className="h-4 w-4" />
+                {provider === "hostfully" ? "Hostfully" : "Guesty"} integration in testing
+              </div>
+              <p className="text-xs text-amber-800 leading-relaxed">
+                We haven&apos;t had access to a live {provider === "hostfully" ? "Hostfully" : "Guesty"} account to fully validate this integration yet.
+                It may need adjustments depending on your specific data setup.
+              </p>
+              <p className="text-xs text-amber-800 leading-relaxed">
+                If you run into any issues, please send us your API token so we can troubleshoot and fine-tune the integration for you.
+                Reach out at{" "}
+                <a
+                  href="mailto:gaston@revfactor.io"
+                  className="font-medium text-cedar underline underline-offset-2 hover:text-cedar/80"
+                >
+                  gaston@revfactor.io
+                </a>
+              </p>
             </div>
           )}
 
