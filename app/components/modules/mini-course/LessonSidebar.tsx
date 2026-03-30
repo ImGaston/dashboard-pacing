@@ -1,6 +1,7 @@
 "use client";
 
-import { CheckCircle2, Lock } from "lucide-react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { CheckCircle2, Lock, Mail, ChevronDown } from "lucide-react";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import {
   Select,
@@ -21,6 +22,10 @@ interface LessonSidebarProps {
   activeLessonId: string;
   completedLessons: string[];
   onSelect: (lessonId: string) => void;
+  /** Lesson IDs that require email subscription to access. */
+  gatedLessonIds?: Set<string>;
+  /** Whether the email gate has been unlocked. */
+  isGateUnlocked?: boolean;
 }
 
 /* ── Shared render for a single lesson button ── */
@@ -29,12 +34,15 @@ function LessonButton({
   isActive,
   isCompleted,
   isLocked,
+  isGated,
   onClick,
 }: {
   lesson: UnifiedLesson;
   isActive: boolean;
   isCompleted: boolean;
   isLocked: boolean;
+  /** True when lesson requires email but user hasn't subscribed yet. */
+  isGated: boolean;
   onClick: () => void;
 }) {
   return (
@@ -45,7 +53,8 @@ function LessonButton({
         "w-full text-left px-4 py-3 rounded-lg transition-colors text-sm",
         "border-l-2 border-transparent",
         isActive && "bg-cedar/5 border-l-cedar text-cedar",
-        !isActive && !isLocked && "hover:bg-bone-muted/60 text-tobacco",
+        !isActive && !isLocked && !isGated && "hover:bg-bone-muted/60 text-tobacco",
+        !isActive && isGated && "hover:bg-cedar/5 text-moss cursor-pointer",
         isLocked && "opacity-50 cursor-not-allowed text-moss"
       )}
     >
@@ -54,6 +63,8 @@ function LessonButton({
         <div className="mt-0.5 shrink-0">
           {isLocked ? (
             <Lock className="h-4 w-4 text-moss" />
+          ) : isGated ? (
+            <Mail className="h-4 w-4 text-cedar/60" />
           ) : isCompleted ? (
             <CheckCircle2 className="h-4 w-4 text-success" />
           ) : (
@@ -72,6 +83,7 @@ function LessonButton({
             className={cn(
               "font-medium leading-tight",
               isActive && "text-cedar",
+              isGated && !isActive && "text-moss",
               isCompleted && !isActive && "text-tobacco"
             )}
           >
@@ -90,15 +102,57 @@ export function LessonSidebar({
   activeLessonId,
   completedLessons,
   onSelect,
+  gatedLessonIds = new Set(),
+  isGateUnlocked = false,
 }: LessonSidebarProps) {
   const hasModules = modules && modules.length > 0;
+
+  /** Check if a lesson is behind the email gate (gated + not yet unlocked). */
+  const isLessonGated = (lessonId: string) =>
+    gatedLessonIds.has(lessonId) && !isGateUnlocked;
+
+  /* ── Scroll fade indicator ── */
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollDown, setCanScrollDown] = useState(true);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Find the Radix viewport (first child with data-radix-scroll-area-viewport)
+    const viewport = el.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLElement | null;
+    if (!viewport) return;
+    const { scrollTop, scrollHeight, clientHeight } = viewport;
+    setCanScrollDown(scrollHeight - scrollTop - clientHeight > 20);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const viewport = el.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLElement | null;
+    if (!viewport) return;
+
+    // Check on mount and after content loads
+    checkScroll();
+    const timer = setTimeout(checkScroll, 500);
+
+    viewport.addEventListener("scroll", checkScroll, { passive: true });
+    return () => {
+      viewport.removeEventListener("scroll", checkScroll);
+      clearTimeout(timer);
+    };
+  }, [checkScroll, modules, lessons]);
 
   return (
     <>
       {/* ── Desktop sidebar (hidden below md) ── */}
-      <aside className="hidden md:block w-72 shrink-0">
-        <ScrollArea className="h-[calc(100vh-220px)]">
-          <nav className="space-y-1 pr-3">
+      <aside className="hidden md:block w-72 shrink-0 relative">
+        <div ref={scrollRef}>
+          <ScrollArea className="h-[calc(100vh-220px)]">
+            <nav className="space-y-1 pr-3 pb-8">
             {hasModules
               ? /* ── Grouped by module ── */
                 modules.map((mod) => (
@@ -110,6 +164,7 @@ export function LessonSidebar({
                       const isActive = lesson.id === activeLessonId;
                       const isCompleted = completedLessons.includes(lesson.id);
                       const isLocked = !lesson.available;
+                      const gated = isLessonGated(lesson.id);
                       return (
                         <LessonButton
                           key={lesson.id}
@@ -117,6 +172,7 @@ export function LessonSidebar({
                           isActive={isActive}
                           isCompleted={isCompleted}
                           isLocked={isLocked}
+                          isGated={gated}
                           onClick={() => {
                             if (!isLocked) onSelect(lesson.id);
                           }}
@@ -130,6 +186,7 @@ export function LessonSidebar({
                   const isActive = lesson.id === activeLessonId;
                   const isCompleted = completedLessons.includes(lesson.id);
                   const isLocked = !lesson.available;
+                  const gated = isLessonGated(lesson.id);
                   return (
                     <LessonButton
                       key={lesson.id}
@@ -137,14 +194,27 @@ export function LessonSidebar({
                       isActive={isActive}
                       isCompleted={isCompleted}
                       isLocked={isLocked}
+                      isGated={gated}
                       onClick={() => {
                         if (!isLocked) onSelect(lesson.id);
                       }}
                     />
                   );
                 })}
-          </nav>
-        </ScrollArea>
+            </nav>
+          </ScrollArea>
+        </div>
+
+        {/* Fade overlay — indicates more content below */}
+        <div
+          className={cn(
+            "absolute bottom-0 left-0 right-0 h-16 pointer-events-none transition-opacity duration-300 flex items-end justify-center pb-2",
+            "bg-gradient-to-t from-white via-white/80 to-transparent",
+            canScrollDown ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <ChevronDown className="h-4 w-4 text-moss/50 animate-bounce" />
+        </div>
       </aside>
 
       {/* ── Mobile dropdown (visible below md) ── */}
@@ -163,6 +233,7 @@ export function LessonSidebar({
                     {mod.lessons.map((lesson) => {
                       const isCompleted = completedLessons.includes(lesson.id);
                       const isLocked = !lesson.available;
+                      const gated = isLessonGated(lesson.id);
                       return (
                         <SelectItem
                           key={lesson.id}
@@ -173,10 +244,13 @@ export function LessonSidebar({
                             {isLocked && (
                               <Lock className="h-3 w-3 text-moss" />
                             )}
-                            {isCompleted && !isLocked && (
+                            {gated && !isLocked && (
+                              <Mail className="h-3 w-3 text-cedar/60" />
+                            )}
+                            {isCompleted && !isLocked && !gated && (
                               <CheckCircle2 className="h-3 w-3 text-success" />
                             )}
-                            <span className={isLocked ? "text-moss" : ""}>
+                            <span className={isLocked ? "text-moss" : gated ? "text-moss" : ""}>
                               {lesson.title}
                             </span>
                           </span>
@@ -188,6 +262,7 @@ export function LessonSidebar({
               : lessons.map((lesson) => {
                   const isCompleted = completedLessons.includes(lesson.id);
                   const isLocked = !lesson.available;
+                  const gated = isLessonGated(lesson.id);
                   return (
                     <SelectItem
                       key={lesson.id}
@@ -196,10 +271,13 @@ export function LessonSidebar({
                     >
                       <span className="flex items-center gap-2">
                         {isLocked && <Lock className="h-3 w-3 text-moss" />}
-                        {isCompleted && !isLocked && (
+                        {gated && !isLocked && (
+                          <Mail className="h-3 w-3 text-cedar/60" />
+                        )}
+                        {isCompleted && !isLocked && !gated && (
                           <CheckCircle2 className="h-3 w-3 text-success" />
                         )}
-                        <span className={isLocked ? "text-moss" : ""}>
+                        <span className={isLocked ? "text-moss" : gated ? "text-moss" : ""}>
                           {lesson.title}
                         </span>
                       </span>

@@ -58,6 +58,22 @@
     text-transform: lowercase;
   }
 
+  /* Tab content fade-in */
+  [data-state="active"][role="tabpanel"] {
+    animation: tabFadeIn 200ms ease-out;
+  }
+
+  @keyframes tabFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* Respect reduced motion preferences */
   @media (prefers-reduced-motion: reduce) {
     *,

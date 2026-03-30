@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Lock, CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
@@ -18,6 +18,17 @@ export function LessonContent({
   isCompleted,
   onMarkComplete,
 }: LessonContentProps) {
+  const [summaryUrl, setSummaryUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!lesson.available) return;
+    const url = `/course/${lesson.id}.svg`;
+    const img = new Image();
+    img.onload = () => setSummaryUrl(url);
+    img.onerror = () => setSummaryUrl(null);
+    img.src = url;
+    return () => { setSummaryUrl(null); };
+  }, [lesson.id, lesson.available]);
   /* ── Locked lesson ── */
   if (!lesson.available) {
     return (
@@ -63,6 +74,20 @@ export function LessonContent({
 
         {/* Lesson body */}
         {renderBody()}
+
+        {/* Summary SVG (if available) */}
+        {summaryUrl && (
+          <div className="mt-10">
+            <h3 className="text-sm font-bold text-moss uppercase tracking-widest mb-4">
+              Lesson Summary
+            </h3>
+            <img
+              src={summaryUrl}
+              alt={`${lesson.title} — summary`}
+              className="w-full rounded-lg border border-bone"
+            />
+          </div>
+        )}
 
         {/* Footer: Mark as Complete */}
         <div className="mt-10 pt-6 border-t border-bone">

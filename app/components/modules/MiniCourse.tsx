@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Progress } from "@/app/components/ui/progress";
 import { lessons as staticLessons } from "./mini-course/lessons";
 import { LessonSidebar } from "./mini-course/LessonSidebar";
 import { LessonContent } from "./mini-course/LessonContent";
+import { EmailGateModal } from "./mini-course/EmailGateModal";
+import { useEmailGate } from "./mini-course/useEmailGate";
 import { getModulesWithLessons } from "@/lib/firestore-course";
 import type { ModuleWithLessons } from "@/types/course";
+
+/** Modules with order >= this threshold require email subscription. */
+const GATED_MODULE_ORDER = 2;
 
 const STORAGE_KEY = "revfactor_course_progress";
 
@@ -43,6 +48,7 @@ export function MiniCourse() {
   const [activeLessonId, setActiveLessonId] = useState(staticLessons[0].id);
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const emailGate = useEmailGate();
 
   // Fetch from Firestore, fallback to static
   useEffect(() => {
@@ -99,6 +105,19 @@ export function MiniCourse() {
     }
   }, [completedLessons, isLoaded]);
 
+  // Build a set of lesson IDs that belong to gated modules (order >= GATED_MODULE_ORDER)
+  const gatedLessonIds = useMemo(() => {
+    if (!modules) return new Set<string>();
+    const gatedModuleIds = new Set(
+      modules.filter((m) => m.order >= GATED_MODULE_ORDER).map((m) => m.id)
+    );
+    return new Set(
+      modules
+        .filter((m) => gatedModuleIds.has(m.id))
+        .flatMap((m) => m.lessons.map((l) => l.id))
+    );
+  }, [modules]);
+
   const activeLesson =
     allLessons.find((l) => l.id === activeLessonId) ?? allLessons[0];
   const progressPercent =
@@ -119,11 +138,27 @@ export function MiniCourse() {
   const handleSelect = useCallback(
     (lessonId: string) => {
       const lesson = allLessons.find((l) => l.id === lessonId);
-      if (lesson && lesson.available) {
-        setActiveLessonId(lessonId);
+      if (!lesson || !lesson.available) return;
+
+      // If lesson belongs to a gated module and user hasn't subscribed → show gate
+      if (gatedLessonIds.has(lessonId) && !emailGate.isUnlocked) {
+        emailGate.openGate(lessonId);
+        return;
+      }
+
+      setActiveLessonId(lessonId);
+    },
+    [allLessons, gatedLessonIds, emailGate]
+  );
+
+  const handleGateSubmit = useCallback(
+    async (data: { email: string; name: string; listingCount: string }) => {
+      const pendingId = await emailGate.handleSubscribe(data);
+      if (pendingId) {
+        setActiveLessonId(pendingId);
       }
     },
-    [allLessons]
+    [emailGate]
   );
 
   if (!isLoaded) {
@@ -166,6 +201,8 @@ export function MiniCourse() {
           activeLessonId={activeLessonId}
           completedLessons={completedLessons}
           onSelect={handleSelect}
+          gatedLessonIds={gatedLessonIds}
+          isGateUnlocked={emailGate.isUnlocked}
         />
 
         <LessonContent
@@ -174,6 +211,13 @@ export function MiniCourse() {
           onMarkComplete={markComplete}
         />
       </div>
+
+      {/* Email gate modal */}
+      <EmailGateModal
+        open={emailGate.isOpen}
+        onClose={emailGate.closeGate}
+        onSubmit={handleGateSubmit}
+      />
     </div>
   );
 }
