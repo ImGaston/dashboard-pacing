@@ -35,3 +35,8 @@ Dates below marked ~ are reconstructed from git history/code archaeology, not re
 - Two chart libraries on purpose: Chart.js for simple charts, Recharts for composed/interactive ones.
 - Custom CSV parser instead of papaparse (papaparse remains an unused dependency).
 - STLY comparison logic is the core business invariant (see conventions.md).
+
+## 2026-08-04 — Auth gates moved to server-validated httpOnly cookies + middleware
+**Decision**: `/api/auth/login` validates the password server-side and sets a 1-year httpOnly cookie (`revfactor_auth` / `revfactor_admin_auth`); root `middleware.ts` guards `/dashboard`, `/admin/course` and bounces authed users off `/login`, `/admin`. Client guards (`AuthGuard`/`AdminGuard`) and localStorage tokens were removed; `/api/auth/logout` clears the cookie.
+**Why**: localStorage tokens were evicted by Safari ITP after 7 days of inactivity, forcing password re-entry. Server-set cookies persist for a year. Bonus: passwords no longer ship in the client bundle.
+**Consequences**: Cookie value is a static sentinel (forgeable) — same threat model as before, still a soft gate. Env vars keep their `NEXT_PUBLIC_` names for Vercel compat, but the route also reads `EVENT_PASSWORD`/`ADMIN_PASSWORD` if defined; renaming them would fully remove them from the bundle.

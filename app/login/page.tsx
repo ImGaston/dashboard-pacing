@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Eye, EyeOff } from "lucide-react";
@@ -14,22 +14,26 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    if (localStorage.getItem("revfactor_auth") === "authenticated") {
-      router.push("/dashboard");
-    }
-  }, [router]);
-
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    if (password === process.env.NEXT_PUBLIC_EVENT_PASSWORD) {
-      localStorage.setItem("revfactor_auth", "authenticated");
-      router.push("/dashboard");
-    } else {
-      setError("Incorrect password. Please try again.");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, scope: "event" }),
+      });
+
+      if (res.ok) {
+        router.push("/dashboard");
+      } else {
+        setError("Incorrect password. Please try again.");
+        setIsLoading(false);
+      }
+    } catch {
+      setError("Could not reach the server. Please try again.");
       setIsLoading(false);
     }
   };
@@ -39,24 +43,14 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-8 text-center">
         {/* Logo */}
         <div className="space-y-3">
-          <div className="relative inline-block">
-            <Image
-              src="/revfactor-logo.png"
-              alt="RevFactor"
-              width={280}
-              height={83}
-              className="mx-auto"
-              priority
-            />
-            <Image
-              src="/summit-badge.png"
-              alt="Summit"
-              width={120}
-              height={110}
-              className="absolute -right-16 -top-18 rotate-[20deg]"
-              priority
-            />
-          </div>
+          <Image
+            src="/revfactor-logo.png"
+            alt="RevFactor"
+            width={280}
+            height={83}
+            className="mx-auto"
+            priority
+          />
           <p className="text-bone/50 text-xs font-sans tracking-[0.25em] uppercase">
             intelligent pricing for inspired stays
           </p>

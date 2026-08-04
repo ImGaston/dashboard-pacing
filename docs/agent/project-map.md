@@ -21,9 +21,10 @@ app/
 ├── layout.tsx               # Root layout: fonts, Umami analytics script, Toaster
 ├── page.tsx                 # / → redirects to /login
 ├── globals.css              # Tailwind v4 @theme: colors, fonts
-├── login/page.tsx           # Event password gate → localStorage token → /dashboard
+├── login/page.tsx           # Event password gate → POST /api/auth/login → cookie → /dashboard
 ├── dashboard/page.tsx       # Main app: Tabs = Pacing Tool | Revenue Tracker | PMS Connector | Mini Course
 ├── admin/                   # Admin password gate + course editor (/admin/course)
+├── api/auth/                # login/logout: server-side password check, sets 1-year httpOnly cookie
 ├── api/pms/                 # Server-side proxy routes to PMS APIs (see integrations.md)
 │   ├── validate/route.ts    # Credential validation for all providers
 │   ├── hostaway/  hospitable/  guesty/  hostfully/  ownerrez/
@@ -36,7 +37,6 @@ app/
 │   │   ├── RevenueTracker.tsx + revenue-tracker/
 │   │   ├── MiniCourse.tsx + mini-course/       # EmailGateModal, useEmailGate, LessonSidebar
 │   │   └── ComingSoonAPI.tsx
-│   ├── AuthGuard.tsx / AdminGuard.tsx          # localStorage-token route guards
 │   ├── Navbar.tsx, UploadScreen.tsx, Dashboard.tsx, KPICard.tsx, ScheduleModal.tsx
 │   └── *Chart.tsx, MonthlyTable.tsx, LeadTimeHistogram.tsx   # CSV-pacing dashboard charts
 ├── utils/                   # PMS normalizers ({guesty,hostaway,hospitable,hostfully,ownerrez}Normalizer.ts)
@@ -65,11 +65,14 @@ Leftovers to ignore: `dist/` (old Vite build), stale Vite `README.md`.
 | Route | Purpose | Guard |
 |---|---|---|
 | `/` | Redirect to `/login` | — |
-| `/login` | Event password gate | — |
-| `/dashboard` | Main tabbed app | `AuthGuard` |
-| `/admin` | Admin password entry | — |
-| `/admin/course` | Course CMS (modules/lessons CRUD) | `AdminGuard` |
+| `/login` | Event password gate | middleware (bounces authed → `/dashboard`) |
+| `/dashboard` | Main tabbed app | middleware (`revfactor_auth` cookie) |
+| `/admin` | Admin password entry | middleware (bounces authed → `/admin/course`) |
+| `/admin/course` | Course CMS (modules/lessons CRUD) | middleware (`revfactor_admin_auth` cookie) |
+| `/api/auth/*` | Password login/logout, sets/clears httpOnly cookies | none |
 | `/api/pms/*` | PMS proxy endpoints (POST, user-supplied keys) | none (stateless) |
+
+Route protection lives in root `middleware.ts` (edge middleware reading cookies). There are no client-side guards.
 
 ## Data models
 

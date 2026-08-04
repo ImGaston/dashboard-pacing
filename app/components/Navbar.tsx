@@ -16,8 +16,14 @@ export function Navbar({ children }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clean up the legacy localStorage token from the old client-side gate
     localStorage.removeItem("revfactor_auth");
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scope: "event" }),
+    }).catch(() => {});
     router.push("/login");
   };
 

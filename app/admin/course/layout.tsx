@@ -2,14 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { LogOut, ArrowLeft } from "lucide-react";
-import { AdminGuard } from "@/app/components/AdminGuard";
 import { Button } from "@/app/components/ui/button";
 
 function AdminNavbar() {
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clean up the legacy localStorage token from the old client-side gate
     localStorage.removeItem("revfactor_admin_auth");
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scope: "admin" }),
+    }).catch(() => {});
     router.push("/admin");
   };
 
@@ -52,13 +57,11 @@ export default function CourseAdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AdminGuard>
-      <div className="min-h-screen bg-bone">
-        <AdminNavbar />
-        <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6">
-          {children}
-        </main>
-      </div>
-    </AdminGuard>
+    <div className="min-h-screen bg-bone">
+      <AdminNavbar />
+      <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6">
+        {children}
+      </main>
+    </div>
   );
 }

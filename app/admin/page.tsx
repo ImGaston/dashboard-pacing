@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
@@ -11,28 +11,26 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (localStorage.getItem("revfactor_admin_auth") === "admin_authenticated") {
-      router.push("/admin/course");
-    }
-  }, [router]);
-
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    if (!process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
-      console.warn(
-        "[Admin] NEXT_PUBLIC_ADMIN_PASSWORD is not set. Restart the dev server after updating .env.local"
-      );
-    }
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, scope: "admin" }),
+      });
 
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
-      localStorage.setItem("revfactor_admin_auth", "admin_authenticated");
-      router.push("/admin/course");
-    } else {
-      setError("Incorrect admin password.");
+      if (res.ok) {
+        router.push("/admin/course");
+      } else {
+        setError("Incorrect admin password.");
+        setIsLoading(false);
+      }
+    } catch {
+      setError("Could not reach the server. Please try again.");
       setIsLoading(false);
     }
   };

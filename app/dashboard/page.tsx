@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { UploadScreen } from '@/app/components/UploadScreen';
 import { Dashboard } from '@/app/components/Dashboard';
-import { AuthGuard } from '@/app/components/AuthGuard';
 import { Navbar } from '@/app/components/Navbar';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/app/components/ui/tabs';
 import { RevenueTracker } from '@/app/components/modules/RevenueTracker';
@@ -28,17 +27,20 @@ export default function DashboardPage() {
     };
 
     return (
-        <AuthGuard>
-            <div className="min-h-screen bg-bone">
-                <Tabs defaultValue="pacing">
+        <div className="min-h-screen bg-bone">
+                <Tabs defaultValue="api">
                     <Navbar>
                         <TabsList>
+                            <TabsTrigger value="api" data-umami-event="Tab Click" data-umami-event-tab="PMS Connector">PMS Connector</TabsTrigger>
                             <TabsTrigger value="pacing" data-umami-event="Tab Click" data-umami-event-tab="Pacing Tool">Pacing Tool</TabsTrigger>
                             <TabsTrigger value="revenue" data-umami-event="Tab Click" data-umami-event-tab="Revenue Tracker">Revenue Tracker</TabsTrigger>
-                            <TabsTrigger value="api" data-umami-event="Tab Click" data-umami-event-tab="PMS Connector">PMS Connector</TabsTrigger>
                             <TabsTrigger value="course" data-umami-event="Tab Click" data-umami-event-tab="Mini Course">Mini Course</TabsTrigger>
                         </TabsList>
                     </Navbar>
+
+                    <TabsContent value="api">
+                        <PMSConnector />
+                    </TabsContent>
 
                     <TabsContent value="pacing">
                         {view === 'upload' ? (
@@ -56,15 +58,10 @@ export default function DashboardPage() {
                         <RevenueTracker />
                     </TabsContent>
 
-                    <TabsContent value="api">
-                        <PMSConnector />
-                    </TabsContent>
-
                     <TabsContent value="course">
                         <MiniCourse />
                     </TabsContent>
                 </Tabs>
-            </div>
-        </AuthGuard>
+        </div>
     );
 }
