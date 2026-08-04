@@ -46,7 +46,6 @@
 
 ## Security & secrets
 
-- `.env.local` (gitignored): `NEXT_PUBLIC_FIREBASE_*` config, `NEXT_PUBLIC_EVENT_PASSWORD`, `NEXT_PUBLIC_ADMIN_PASSWORD`. All are browser-exposed by design — the password gates are lightweight access control, not real auth.
-- Auth model: `localStorage` tokens (`revfactor_auth`, `revfactor_admin_auth`) checked by `AuthGuard`/`AdminGuard`. Know its limits; don't present it as secure.
+- `.env.local` (gitignored): `EVENT_PASSWORD` (or legacy `NEXT_PUBLIC_EVENT_PASSWORD`) — the gate password, validated server-side in `/api/auth/login`.
+- Auth model: 1-year httpOnly cookie (`revfactor_auth`) set by `/api/auth/login`, enforced by root `middleware.ts`. The cookie value is a static sentinel — lightweight access control, not real auth; don't present it as secure.
 - User-supplied PMS API keys: kept in client state, sent per-request to `/api/pms/*`. Never log them (client or server), never persist them, never echo them in error messages.
-- Firestore is accessed with the client SDK — access control depends on Firestore security rules (managed in Firebase console, not in this repo — TBD to document them).

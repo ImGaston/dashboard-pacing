@@ -31,6 +31,11 @@ Dates below marked ~ are reconstructed from git history/code archaeology, not re
 **Why**: Non-developer editing of course content without redeploys.
 **Consequences**: Depends on Firestore security rules configured in the Firebase console (not in repo).
 
+## 2026-08-04 — Mini-course extracted to standalone `course-rm` repo; Firebase removed here
+**Decision**: Moved the entire mini-course (viewer, `/admin` CMS, Firestore layer, seed scripts, `public/course` assets) to `/Users/gaston/Programacion/course-rm`. This repo keeps only Pacing Tool, Revenue Tracker, and PMS Connector. Firebase (`lib/firebase.ts`, `firebase` dep, `NEXT_PUBLIC_FIREBASE_*`, `NEXT_PUBLIC_ADMIN_PASSWORD`) removed — the course was its only consumer.
+**Why**: Independent deploy/domain for the course; keep the hub lean.
+**Consequences**: Course data untouched in the shared Firebase project (`course-rm` points at it). `ui/{dialog,progress,scroll-area}.tsx` and `react-markdown`/`remark-gfm`/`dotenv`/`tsx` also removed as course-only. The 2026-03 "Course content in Firestore" decision now lives on in `course-rm`.
+
 ## Earlier (from the Vite era, still true)
 - Two chart libraries on purpose: Chart.js for simple charts, Recharts for composed/interactive ones.
 - Custom CSV parser instead of papaparse (papaparse remains an unused dependency).
@@ -39,4 +44,4 @@ Dates below marked ~ are reconstructed from git history/code archaeology, not re
 ## 2026-08-04 — Auth gates moved to server-validated httpOnly cookies + middleware
 **Decision**: `/api/auth/login` validates the password server-side and sets a 1-year httpOnly cookie (`revfactor_auth` / `revfactor_admin_auth`); root `middleware.ts` guards `/dashboard`, `/admin/course` and bounces authed users off `/login`, `/admin`. Client guards (`AuthGuard`/`AdminGuard`) and localStorage tokens were removed; `/api/auth/logout` clears the cookie.
 **Why**: localStorage tokens were evicted by Safari ITP after 7 days of inactivity, forcing password re-entry. Server-set cookies persist for a year. Bonus: passwords no longer ship in the client bundle.
-**Consequences**: Cookie value is a static sentinel (forgeable) — same threat model as before, still a soft gate. Env vars keep their `NEXT_PUBLIC_` names for Vercel compat, but the route also reads `EVENT_PASSWORD`/`ADMIN_PASSWORD` if defined; renaming them would fully remove them from the bundle.
+**Consequences**: Cookie value is a static sentinel (forgeable) — same threat model as before, still a soft gate. Env vars keep their `NEXT_PUBLIC_` names for Vercel compat, but the route also reads `EVENT_PASSWORD` if defined; renaming it would fully remove it from the bundle. (Same-day update: the admin scope — `revfactor_admin_auth`, `/admin*` middleware rules — was removed when the mini-course moved to `course-rm`; only the event gate remains here.)

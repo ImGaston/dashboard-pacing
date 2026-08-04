@@ -16,14 +16,6 @@ Notes:
 - Hostfully and Guesty integrations were labeled **beta** in the UI (commit `d3c10cb`).
 - Keys are never persisted server-side; treat every route as stateless.
 
-## Firebase (Firestore)
-
-- Init in `lib/firebase.ts` from `NEXT_PUBLIC_FIREBASE_*` env vars; exports `db`.
-- Collections: `modules`, `lessons` (course CMS — `lib/firestore-course.ts`), `subscribers` (mini-course email gate — `lib/firestore-subscribers.ts`).
-- Only Firestore is used (no Firebase Auth, Storage, or Functions).
-- Seeding: `npx tsx scripts/seed-course.ts` (loads `.env.local` via dotenv).
-- Firestore security rules are managed in the Firebase console, not in this repo (TBD: document current rules).
-
 ## Analytics — Umami
 
 - Self-hosted Umami loaded in `app/layout.tsx` (`umami-rgc.up.railway.app`, deferred script with a public website id).
@@ -31,7 +23,7 @@ Notes:
 
 ## Auth (internal, not external)
 
-- No external auth provider. Two localStorage password gates: event password (`/login` → `/dashboard`) and admin password (`/admin` → `/admin/course`). Passwords come from `NEXT_PUBLIC_EVENT_PASSWORD` / `NEXT_PUBLIC_ADMIN_PASSWORD`.
+- No external auth provider. One password gate: `/login` POSTs to `/api/auth/login`, which validates `EVENT_PASSWORD` (or legacy `NEXT_PUBLIC_EVENT_PASSWORD`) server-side and sets a 1-year httpOnly `revfactor_auth` cookie; root `middleware.ts` guards `/dashboard`.
 
 ## Hosting
 
@@ -39,4 +31,4 @@ Notes:
 
 ## Not present
 
-- No webhooks, no payment providers, no email-sending service (subscriber emails are only stored in Firestore), no other cloud services.
+- No webhooks, no payment providers, no email-sending service, no Firebase (removed 2026-08 when the mini-course moved to the `course-rm` repo), no other cloud services.
