@@ -8,7 +8,6 @@ import { Navbar } from '@/app/components/Navbar';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/app/components/ui/tabs';
 import { RevenueTracker } from '@/app/components/modules/RevenueTracker';
 import { PMSConnector } from '@/app/components/modules/PMSConnector';
-import { MiniCourse } from '@/app/components/modules/MiniCourse';
 import type { Reservation } from '@/types';
 
 export default function DashboardPage() {
@@ -36,7 +35,6 @@ export default function DashboardPage() {
                             <TabsTrigger value="pacing" data-umami-event="Tab Click" data-umami-event-tab="Pacing Tool">Pacing Tool</TabsTrigger>
                             <TabsTrigger value="revenue" data-umami-event="Tab Click" data-umami-event-tab="Revenue Tracker">Revenue Tracker</TabsTrigger>
                             <TabsTrigger value="api" data-umami-event="Tab Click" data-umami-event-tab="PMS Connector">PMS Connector</TabsTrigger>
-                            <TabsTrigger value="course" data-umami-event="Tab Click" data-umami-event-tab="Mini Course">Mini Course</TabsTrigger>
                         </TabsList>
                     </Navbar>
 
@@ -58,10 +56,6 @@ export default function DashboardPage() {
 
                     <TabsContent value="api">
                         <PMSConnector />
-                    </TabsContent>
-
-                    <TabsContent value="course">
-                        <MiniCourse />
                     </TabsContent>
                 </Tabs>
             </div>

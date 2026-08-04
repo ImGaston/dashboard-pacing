@@ -4,8 +4,8 @@ Routing file for coding agents (Codex, Claude Code, etc.). Keep this short — d
 
 ## Project Snapshot
 
-- **What**: RevFactor — revenue analytics hub for short-term rental (STR) property managers. Modules: CSV pacing dashboard, revenue tracker, live PMS connector (5 providers), and an admin-editable mini-course.
-- **Stack**: Next.js 14 (App Router) · React 18 · TypeScript 5.7 (strict) · Tailwind CSS v4 · Firebase Firestore · Chart.js + Recharts.
+- **What**: RevFactor — revenue analytics hub for short-term rental (STR) property managers. Modules: CSV pacing dashboard, revenue tracker, and live PMS connector (5 providers). (The mini-course was extracted to the standalone `course-rm` repo, 2026-08.)
+- **Stack**: Next.js 14 (App Router) · React 18 · TypeScript 5.7 (strict) · Tailwind CSS v4 · Chart.js + Recharts.
 - **Package manager**: npm (`package-lock.json`).
 - **Deploy**: Vercel (`vercel.json`).
 - **Commands**: `npm run dev` · `npm run build` · `npm run lint`. No test suite exists (TBD).
@@ -19,14 +19,14 @@ Read only what the task needs:
 |---|---|
 | Any code change (orient first) | `docs/agent/project-map.md` |
 | Writing components, styling, business logic | `docs/agent/conventions.md` |
-| PMS APIs, Firebase/Firestore, Umami, auth | `docs/agent/integrations.md` |
+| PMS APIs, Umami, auth | `docs/agent/integrations.md` |
 | Perf-sensitive work (charts, CSV parsing, API routes) | `docs/agent/performance.md` |
 | "Why is it like this?" / before proposing rewrites | `docs/agent/decisions.md` |
 | Continuing recent work | `docs/agent/sessions.md` |
 
 ## Critical Rules
 
-- Never commit secrets. `.env.local` is gitignored and holds Firebase config + gate passwords — never inline its values in code or docs.
+- Never commit secrets. `.env.local` is gitignored and holds the gate password — never inline its values in code or docs.
 - PMS API keys are user-supplied at runtime and flow through `app/api/pms/*` proxy routes. Never log them or persist them server-side.
 - All `NEXT_PUBLIC_*` vars are exposed to the browser — do not put real secrets there beyond what already exists.
 - Use the design-system tokens (`bone`, `cedar`, `moss`, `walnut`, `tobacco`, `onyx` — defined in `app/globals.css`), not arbitrary hex values.
